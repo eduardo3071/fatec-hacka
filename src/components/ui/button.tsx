@@ -1,27 +1,33 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Pill buttons, at least 52px tall so they are easy to hit with one hand in the field.
+ * Contrast rules: text on amber is always forest; destructive uses rust.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,color,transform] duration-150 active:translate-y-[1px] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: "bg-leaf-dark text-cream hover:bg-leaf-dark/90",
+        primary: "bg-leaf-dark text-cream hover:bg-leaf-dark/90",
+        amber: "bg-amber text-forest hover:bg-amber/90",
+        outline: "border-2 border-forest bg-transparent text-forest hover:bg-forest hover:text-cream",
+        secondary: "bg-sand text-ink hover:bg-line",
+        ghost: "bg-transparent text-forest hover:bg-sand",
+        destructive: "bg-rust text-cream hover:bg-rust/90",
+        link: "rounded-none text-leaf-dark underline underline-offset-4 hover:text-forest",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "h-13 min-h-13 px-6 text-base [&_svg]:size-5",
+        sm: "h-12 min-h-12 px-5 text-sm [&_svg]:size-4",
+        lg: "h-14 min-h-14 px-8 text-lg [&_svg]:size-6",
+        icon: "h-13 w-13 min-h-13 px-0 [&_svg]:size-6",
       },
     },
     defaultVariants: {
@@ -32,15 +38,32 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+  ({ className, variant, size, asChild = false, isLoading = false, children, ...props }, ref) => {
+    if (asChild) {
+      return (
+        <Slot className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        disabled={props.disabled || isLoading}
+        {...props}
+      >
+        {isLoading ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+        {children}
+      </button>
     );
   },
 );

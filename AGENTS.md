@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- All colors, fonts, radii and shadows come from the tokens in `src/styles.css`; components use semantic token classes, never raw hex or one-off color utilities. Why: the palette is a brand contract and must stay themeable in light and dark.
+- Browser-only libraries (vaul/drawer, map/leaflet-style) are lazy-loaded and rendered only after hydration, never imported at module scope of an SSR route. Why: they touch `document` during server render and break the page.
