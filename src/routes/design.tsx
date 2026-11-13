@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { toast } from "sonner";
 import {
   Bell,
@@ -20,7 +20,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Chip } from "@/components/chip";
 import { Stepper } from "@/components/stepper";
-import { BottomSheet } from "@/components/bottom-sheet";
 import { EmptyState } from "@/components/empty-state";
 import { TimelineStatus, type TimelineStep } from "@/components/timeline-status";
 import { BigNumber } from "@/components/big-number";
@@ -28,8 +27,7 @@ import { Logo } from "@/components/logo";
 import { formatMoney, formatQty } from "@/lib/format";
 import { PRODUCTS, SAMPLE_ORDER, orderTotal, type Product } from "@/lib/mock";
 
-export const Route = createFileRoute("/design")({
-  head: () => ({
+export const Route = createFileRoute("/design")({  head: () => ({
     meta: [
       { title: "Base visual — Colheita Certa" },
       {

@@ -59,7 +59,7 @@ function Index() {
           </Button>
         </div>
 
-        <div className="animate-fade-up rounded-3xl border-2 border-line/25 bg-card p-6 [animation-delay:220ms]">
+        <div className="animate-fade-up rounded-3xl border-2 border-line/25 bg-forest-2 p-6 [animation-delay:220ms]">
           <p className="font-display text-xl font-bold text-cream">
             {PRODUCER.name}, {PRODUCER.city}
           </p>
