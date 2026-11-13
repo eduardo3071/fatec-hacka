@@ -1,7 +1,9 @@
 /**
- * Buyer flow logic — pure helpers + browser storage. Sample data only, no network.
+ * Buyer flow logic — pure helpers + browser storage. Talks to the API through
+ * src/lib/api when VITE_API_URL is set; otherwise uses the sample catalog.
  */
 import { PRODUCER, PRODUCTS, ALFACE, COUVE, type Product, type Producer } from "@/lib/mock";
+import { ApiError, apiEnabled, glyphFor, publicApi, unitFromApi } from "@/lib/api";
 
 export type Cart = Record<string, number>;
 
@@ -14,24 +16,45 @@ export function findProducer(slug: string): Producer | undefined {
   return slug === PRODUCER.slug ? PRODUCER : undefined;
 }
 
-export function findProduct(id: string): Product | undefined {
-  return PRODUCTS.find((p) => p.id === id);
+export interface Catalog {
+  producer: Producer;
+  products: Product[];
 }
 
-export function cartLines(cart: Cart): CartLine[] {
-  return PRODUCTS.filter((p) => (cart[p.id] ?? 0) > 0).map((product) => ({
+/** Storefront data: the API when configured, else the sample producer. null = not found. */
+export async function loadCatalog(slug: string): Promise<Catalog | null> {
+  if (!apiEnabled) {
+    const producer = findProducer(slug);
+    return producer ? { producer, products: PRODUCTS } : null;
+  }
+  try {
+    const c = await publicApi.catalog(slug);
+    return {
+      producer: { name: c.producer_name, city: c.municipality ?? "", slug, pixKey: c.pix_key ?? "" },
+      products: c.products
+        .filter((p) => p.active)
+        .map((p) => ({ id: p.id, name: p.name, unit: unitFromApi(p.unit), price: p.price, glyph: glyphFor(p.name) })),
+    };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return null;
+    throw e;
+  }
+}
+
+export function cartLines(cart: Cart, products: Product[] = PRODUCTS): CartLine[] {
+  return products.filter((p) => (cart[p.id] ?? 0) > 0).map((product) => ({
     product,
     quantity: cart[product.id] ?? 0,
   }));
 }
 
 /** Number of distinct products in the cart ("3 itens"). */
-export function cartCount(cart: Cart): number {
-  return cartLines(cart).length;
+export function cartCount(cart: Cart, products: Product[] = PRODUCTS): number {
+  return cartLines(cart, products).length;
 }
 
-export function cartTotal(cart: Cart): number {
-  return cartLines(cart).reduce((s, l) => s + l.product.price * l.quantity, 0);
+export function cartTotal(cart: Cart, products: Product[] = PRODUCTS): number {
+  return cartLines(cart, products).reduce((s, l) => s + l.product.price * l.quantity, 0);
 }
 
 export function itemsLabel(n: number): string {
@@ -102,6 +125,46 @@ export interface PlacedOrder {
   notes: string;
   status: TrackStatus;
   createdAt: string;
+}
+
+/** What the tracking screen shows, from the API or from this phone. */
+export interface TrackView {
+  status: TrackStatus;
+  producerName: string;
+  producerSlug: string | null;
+  pixKey: string;
+  total: number;
+  deliveryDate: string;
+  deliveryTime: string;
+  items: { key: string; label: string; quantity: number; unit: Product["unit"]; subtotal: number }[];
+  cart: Cart | null; // to re-order after a refusal (local only)
+}
+
+export function trackStatus(status: string, paymentStatus: string): TrackStatus {
+  const s = status.toLowerCase();
+  if (/recus|reject|cancel/.test(s)) return "rejected";
+  if (/entreg|deliver/.test(s)) return /pag|paid/.test(paymentStatus.toLowerCase()) ? "paid" : "delivered";
+  if (/aceit|accept/.test(s)) return "accepted";
+  return "pending";
+}
+
+export function localTrackView(order: PlacedOrder, products: Product[] = PRODUCTS): TrackView | null {
+  const producer = findProducer(order.producerSlug);
+  if (!producer) return null;
+  return {
+    status: order.status,
+    producerName: producer.name,
+    producerSlug: producer.slug,
+    pixKey: producer.pixKey,
+    total: order.total,
+    deliveryDate: order.deliveryDate,
+    deliveryTime: order.deliveryTime,
+    items: order.items.flatMap((it) => {
+      const p = products.find((x) => x.id === it.productId);
+      return p ? [{ key: p.id, label: `${p.glyph} ${p.name}`, quantity: it.quantity, unit: p.unit, subtotal: p.price * it.quantity }] : [];
+    }),
+    cart: Object.fromEntries(order.items.map((i) => [i.productId, i.quantity])),
+  };
 }
 
 export interface BuyerInfo {
