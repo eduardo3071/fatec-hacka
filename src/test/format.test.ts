@@ -17,7 +17,8 @@ function short(date: Date): string {
 
 describe("pt-BR formatting", () => {
   it("writes money as R$ 1.234,56", () => {
-    expect(plain(formatMoney(1234.5))).toBe("R$ 1.234,56");
+    expect(plain(formatMoney(1234.56))).toBe("R$ 1.234,56");
+    expect(plain(formatMoney(1234.5))).toBe("R$ 1.234,50");
     expect(plain(formatMoney(3.5))).toBe("R$ 3,50");
     expect(plain(formatMoney(0))).toBe("R$ 0,00");
   });

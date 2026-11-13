@@ -1,8 +1,6 @@
 import * as React from "react";
 import { Drawer } from "vaul";
 
-import { cn } from "@/lib/utils";
-
 /** Bottom sheet: slides up from the bottom, paper surface, rounded top. */
 export function BottomSheet({
   open,
