@@ -26,7 +26,7 @@ import { TimelineStatus, type TimelineStep } from "@/components/timeline-status"
 import { BigNumber } from "@/components/big-number";
 import { Logo } from "@/components/logo";
 import { formatMoney, formatQty } from "@/lib/format";
-import { PRODUCTS, PRODUCER, SAMPLE_ORDERS, orderTotal, type Product } from "@/lib/mock";
+import { PRODUCTS, SAMPLE_ORDER, orderTotal, type Product } from "@/lib/mock";
 
 export const Route = createFileRoute("/design")({
   head: () => ({
@@ -121,7 +121,7 @@ function DesignPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [chips, setChips] = useState<string[]>(["Amanhã"]);
   const [qty, setQty] = useState(3);
-  const order = SAMPLE_ORDERS[0];
+  const order = SAMPLE_ORDER;
 
   const toggleChip = (label: string) =>
     setChips((prev) => (prev.includes(label) ? prev.filter((c) => c !== label) : [...prev, label]));

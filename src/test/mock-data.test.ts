@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PRODUCTS, PRODUCER, orderItemCount, orderTotal } from "@/lib/mock";
+import { ALFACE, COUVE, PRODUCTS, PRODUCER, orderItemCount, orderTotal } from "@/lib/mock";
 
 describe("sample catalog", () => {
   it("has the five products with the stated prices", () => {
@@ -26,8 +26,8 @@ describe("sample catalog", () => {
       deliveryTime: "07:00",
       status: "pending" as const,
       items: [
-        { product: PRODUCTS[0], quantity: 20 },
-        { product: PRODUCTS[1], quantity: 10 },
+        { product: ALFACE, quantity: 20 },
+        { product: COUVE, quantity: 10 },
       ],
     };
     // 20 × 3,50 + 10 × 3,00

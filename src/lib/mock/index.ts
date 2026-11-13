@@ -48,18 +48,30 @@ export const PRODUCER: Producer = {
   pixKey: "marcos@hortifruti.com.br",
 };
 
-export const BUYERS: Buyer[] = [
-  { id: "b1", name: "Restaurante A", phone: "(11) 98888-1010" },
-  { id: "b2", name: "Mercadinho B", phone: "(11) 97777-2020" },
-];
+export const RESTAURANTE_A: Buyer = { id: "b1", name: "Restaurante A", phone: "(11) 98888-1010" };
+export const MERCADINHO_B: Buyer = { id: "b2", name: "Mercadinho B", phone: "(11) 97777-2020" };
 
-export const PRODUCTS: Product[] = [
-  { id: "p1", name: "Alface crespa", unit: "maço", price: 3.5, glyph: "🥬" },
-  { id: "p2", name: "Couve", unit: "maço", price: 3.0, glyph: "🥗" },
-  { id: "p3", name: "Brócolis", unit: "maço", price: 6.0, glyph: "🥦" },
-  { id: "p4", name: "Cenoura", unit: "kg", price: 4.0, glyph: "🥕" },
-  { id: "p5", name: "Rúcula", unit: "maço", price: 3.5, glyph: "🌿" },
-];
+export const BUYERS: Buyer[] = [RESTAURANTE_A, MERCADINHO_B];
+
+export const ALFACE: Product = {
+  id: "p1",
+  name: "Alface crespa",
+  unit: "maço",
+  price: 3.5,
+  glyph: "🥬",
+};
+export const COUVE: Product = { id: "p2", name: "Couve", unit: "maço", price: 3.0, glyph: "🥗" };
+export const BROCOLIS: Product = {
+  id: "p3",
+  name: "Brócolis",
+  unit: "maço",
+  price: 6.0,
+  glyph: "🥦",
+};
+export const CENOURA: Product = { id: "p4", name: "Cenoura", unit: "kg", price: 4.0, glyph: "🥕" };
+export const RUCULA: Product = { id: "p5", name: "Rúcula", unit: "maço", price: 3.5, glyph: "🌿" };
+
+export const PRODUCTS: Product[] = [ALFACE, COUVE, BROCOLIS, CENOURA, RUCULA];
 
 function inDays(days: number): string {
   const d = new Date();
@@ -69,24 +81,26 @@ function inDays(days: number): string {
   ).padStart(2, "0")}`;
 }
 
+export const SAMPLE_ORDER: Order = {
+  id: "o1",
+  buyer: RESTAURANTE_A,
+  items: [
+    { product: ALFACE, quantity: 20 },
+    { product: COUVE, quantity: 10 },
+  ],
+  deliveryDate: inDays(1),
+  deliveryTime: "07:00",
+  status: "pending",
+};
+
 export const SAMPLE_ORDERS: Order[] = [
-  {
-    id: "o1",
-    buyer: BUYERS[0],
-    items: [
-      { product: PRODUCTS[0], quantity: 20 },
-      { product: PRODUCTS[1], quantity: 10 },
-    ],
-    deliveryDate: inDays(1),
-    deliveryTime: "07:00",
-    status: "pending",
-  },
+  SAMPLE_ORDER,
   {
     id: "o2",
-    buyer: BUYERS[1],
+    buyer: MERCADINHO_B,
     items: [
-      { product: PRODUCTS[2], quantity: 6 },
-      { product: PRODUCTS[3], quantity: 4 },
+      { product: BROCOLIS, quantity: 6 },
+      { product: CENOURA, quantity: 4 },
     ],
     deliveryDate: inDays(1),
     deliveryTime: "08:30",
@@ -94,8 +108,8 @@ export const SAMPLE_ORDERS: Order[] = [
   },
   {
     id: "o3",
-    buyer: BUYERS[0],
-    items: [{ product: PRODUCTS[4], quantity: 12 }],
+    buyer: RESTAURANTE_A,
+    items: [{ product: RUCULA, quantity: 12 }],
     deliveryDate: inDays(0),
     deliveryTime: "06:30",
     status: "delivered",
