@@ -67,7 +67,7 @@ function Index() {
                   <span className="font-display text-xl leading-tight font-bold">
                     Sou produtor
                   </span>
-                  <span className="text-[15px] font-medium text-forest/80">
+                  <span className="text-[15px] font-medium text-forest">
                     Pedidos, colheita, rota e ganhos
                   </span>
                 </span>
@@ -79,7 +79,7 @@ function Index() {
           <Button
             asChild
             size="lg"
-            className="h-20 min-h-20 w-full justify-between rounded-3xl border-2 border-cream/35 bg-forest-2 px-6 text-left whitespace-normal text-cream hover:border-cream/70 hover:bg-forest-2"
+            className="h-20 min-h-20 w-full justify-between rounded-3xl border-2 border-cream/45 bg-cream/10 px-6 text-left whitespace-normal text-cream hover:border-cream/70 hover:bg-cream/15"
           >
             <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
               <span className="flex min-w-0 items-center gap-4">
