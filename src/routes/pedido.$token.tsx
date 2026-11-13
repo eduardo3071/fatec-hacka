@@ -127,7 +127,18 @@ function Tracking() {
                     O {producer.name} não conseguiu atender. Veja outros horários.
                   </p>
                   <Button asChild variant="outline">
-                    <Link to="/p/$slug/pedido" params={{ slug: producer.slug }}>Escolher outro horário</Link>
+                    <Link
+                      to="/p/$slug/pedido"
+                      params={{ slug: producer.slug }}
+                      onClick={() =>
+                        storage.setCart(
+                          producer.slug,
+                          Object.fromEntries(order.items.map((i) => [i.productId, i.quantity])),
+                        )
+                      }
+                    >
+                      Escolher outro horário
+                    </Link>
                   </Button>
                 </div>
               ) : (
