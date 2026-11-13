@@ -86,6 +86,9 @@
   --animate-fade-up: fade-up 260ms ease-out both;
   --animate-hop: hop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
   --animate-grow-leaf: grow-leaf 700ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-sun-rise: sun-rise 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-wave: wave 1.6s ease-out infinite;
+  --animate-bar-in: bar-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes fade-up {
@@ -109,6 +112,21 @@
   100% {
     transform: translateY(0) scale(1);
   }
+}
+
+@keyframes sun-rise {
+  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes wave {
+  0% { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+@keyframes bar-in {
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes grow-leaf {
