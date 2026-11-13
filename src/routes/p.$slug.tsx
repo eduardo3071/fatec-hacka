@@ -1,15 +1,22 @@
 import { createFileRoute, notFound, Outlet, Link } from "@tanstack/react-router";
 
 import { CartProvider } from "@/lib/cart-context";
-import { findProducer } from "@/lib/buyer";
+import { loadCatalog } from "@/lib/buyer";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/p/$slug")({
-  loader: ({ params }) => {
-    const producer = findProducer(params.slug);
-    if (!producer) throw notFound();
-    return { producer };
+  loader: async ({ params }) => {
+    const catalog = await loadCatalog(params.slug);
+    if (!catalog) throw notFound();
+    return catalog;
   },
+  errorComponent: () => (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-cream px-6 text-center">
+      <h1 className="font-display text-3xl font-bold text-forest">Não deu para abrir a vitrine</h1>
+      <p className="max-w-xs text-base text-muted-text">Foi um problema do nosso lado ou da conexão. Tente de novo em instantes.</p>
+      <Button onClick={() => window.location.reload()}>Tentar de novo</Button>
+    </div>
+  ),
   head: ({ loaderData }) => {
     const name = loaderData?.producer.name ?? "Produtor";
     const title = `Horta do ${name} · Colheita Certa`;
@@ -45,10 +52,11 @@ export const Route = createFileRoute("/p/$slug")({
 
 function BuyerLayout() {
   const { slug } = Route.useParams();
+  const catalog = Route.useLoaderData();
   return (
     <div className="min-h-screen bg-sand">
       <div className="mx-auto min-h-screen max-w-[480px] bg-cream shadow-card">
-        <CartProvider slug={slug}>
+        <CartProvider slug={slug} catalog={catalog}>
           <Outlet />
         </CartProvider>
       </div>
