@@ -2,7 +2,7 @@
  * Sample data only — no API, no tables. Types mirror what the real API will return.
  */
 
-export type Unit = "maço" | "kg" | "unidade";
+export type Unit = "maço" | "kg" | "unidade" | "dúzia" | "caixa" | "engradado";
 
 export interface Product {
   id: string;
