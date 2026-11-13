@@ -395,7 +395,7 @@ function DesignPage() {
             title="Pedir falando"
             description="Fale o pedido: “vinte maços de alface e dez de couve, amanhã às sete”."
             footer={
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button className="flex-1" onClick={() => setSheetOpen(false)}>
                   Está certo, ir para o pedido
                 </Button>
