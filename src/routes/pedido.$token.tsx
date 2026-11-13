@@ -169,32 +169,25 @@ function Tracking() {
 
               {order.status === "rejected" ? (
                 <div className="mt-5 flex flex-col gap-3 rounded-3xl bg-sand p-4" role="alert">
-                  {producer.slug && order.cart ? (<>
                   <p className="inline-flex items-start gap-2 text-base text-ink">
                     <XCircle className="mt-0.5 size-5 shrink-0 text-rust" aria-hidden="true" />
-                    O {producer.name} não conseguiu atender. Veja outros horários.
-                  </p></>) : (
-                  <p className="inline-flex items-start gap-2 text-base text-ink">
-                    <XCircle className="mt-0.5 size-5 shrink-0 text-rust" aria-hidden="true" />
-                    O {producer.name} não conseguiu atender desta vez. Fale com ele para combinar outro dia.
-                  </p>)}
-                  <Button asChild variant="outline">
-                    <Link
-                      to="/p/$slug/pedido"
-                      params={{ slug: producer.slug }}
-                      onClick={() =>
-                        storage.setCart(
-                          producer.slug,
-                          Object.fromEntries(order.items.map((i) => [i.productId, i.quantity])),
-                        )
-                      }
-                    >
-                      Escolher outro horário
-                    </Link>
-                  </Button>
+                    {producer.slug && order.cart
+                      ? `O ${producer.name} não conseguiu atender. Veja outros horários.`
+                      : `O ${producer.name} não conseguiu atender desta vez. Fale com ele para combinar outro dia.`}
+                  </p>
+                  {producer.slug && order.cart ? (
+                    <Button asChild variant="outline">
+                      <Link
+                        to="/p/$slug/pedido"
+                        params={{ slug: producer.slug }}
+                        onClick={() => producer.slug && order.cart && storage.setCart(producer.slug, order.cart)}
+                      >
+                        Escolher outro horário
+                      </Link>
+                    </Button>
+                  ) : null}
                 </div>
-              ) : null}
-              {order.status === "rejected" && !(producer.slug && order.cart) ? null : order.status === "rejected" ? null : (
+              ) : (
                 <TimelineStatus className="mt-6" steps={steps(order.status, producer.name)} />
               )}
             </section>
@@ -239,20 +232,16 @@ function Tracking() {
             <section className="rounded-3xl border-2 border-line bg-paper p-5">
               <h2 className="font-display text-xl font-bold text-forest">Itens</h2>
               <ul className="mt-3 flex flex-col gap-2">
-                {order.items.map((it) => {
-                  const p = findProduct(it.productId);
-                  if (!p) return null;
-                  return (
-                    <li key={it.productId} className="flex justify-between gap-3 text-base text-ink">
-                      <span>{p.glyph} {p.name} · {formatQty(it.quantity, p.unit)}</span>
-                      <span className="font-semibold">{formatMoney(it.quantity * p.price)}</span>
-                    </li>
-                  );
-                })}
+                {order.items.map((it) => (
+                  <li key={it.key} className="flex justify-between gap-3 text-base text-ink">
+                    <span>{it.label} · {formatQty(it.quantity, it.unit)}</span>
+                    <span className="font-semibold">{formatMoney(it.subtotal)}</span>
+                  </li>
+                ))}
               </ul>
             </section>
 
-            <section className="rounded-3xl border-2 border-dashed border-line p-4">
+            {apiEnabled ? null : <section className="rounded-3xl border-2 border-dashed border-line p-4">
               <p className="text-[15px] font-semibold text-muted-text">Só no exemplo: ver como fica cada etapa</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {(Object.keys(STATUS_BADGE) as TrackStatus[]).map((s) => (
