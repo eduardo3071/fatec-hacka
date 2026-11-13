@@ -52,9 +52,11 @@ function Index() {
             <Smartphone />
             Entrar como produtor
           </Button>
-          <Button variant="amber" size="lg" className="w-full">
-            <Mic />
-            Pedir falando
+          <Button asChild variant="amber" size="lg" className="w-full">
+            <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
+              <Mic />
+              Ver a vitrine do Marcos
+            </Link>
           </Button>
         </div>
 
