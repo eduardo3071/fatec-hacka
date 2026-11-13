@@ -11,10 +11,20 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignRouteImport } from './routes/design'
+import { Route as ProdutorRouteImport } from './routes/produtor'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PedidoTokenRouteImport } from './routes/pedido.$token'
+import { Route as ProdutorIndexRouteImport } from './routes/produtor.index'
+import { Route as ProdutorPainelRouteImport } from './routes/produtor._painel'
+import { Route as ProdutorCadastroRouteImport } from './routes/produtor.cadastro'
 import { Route as PSlugIndexRouteImport } from './routes/p.$slug.index'
 import { Route as PSlugPedidoRouteImport } from './routes/p.$slug.pedido'
+import { Route as ProdutorPainelColheitaRouteImport } from './routes/produtor._painel.colheita'
+import { Route as ProdutorPainelGanhosRouteImport } from './routes/produtor._painel.ganhos'
+import { Route as ProdutorPainelLinkRouteImport } from './routes/produtor._painel.link'
+import { Route as ProdutorPainelPedidosRouteImport } from './routes/produtor._painel.pedidos'
+import { Route as ProdutorPainelProdutosRouteImport } from './routes/produtor._painel.produtos'
+import { Route as ProdutorPainelRotaRouteImport } from './routes/produtor._painel.rota'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -24,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const DesignRoute = DesignRouteImport.update({
   id: '/design',
   path: '/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutorRoute = ProdutorRouteImport.update({
+  id: '/produtor',
+  path: '/produtor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PSlugRoute = PSlugRouteImport.update({
@@ -36,6 +51,20 @@ const PedidoTokenRoute = PedidoTokenRouteImport.update({
   path: '/pedido/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdutorIndexRoute = ProdutorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProdutorRoute,
+} as any)
+const ProdutorPainelRoute = ProdutorPainelRouteImport.update({
+  id: '/_painel',
+  getParentRoute: () => ProdutorRoute,
+} as any)
+const ProdutorCadastroRoute = ProdutorCadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => ProdutorRoute,
+} as any)
 const PSlugIndexRoute = PSlugIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -46,29 +75,86 @@ const PSlugPedidoRoute = PSlugPedidoRouteImport.update({
   path: '/pedido',
   getParentRoute: () => PSlugRoute,
 } as any)
+const ProdutorPainelColheitaRoute = ProdutorPainelColheitaRouteImport.update({
+  id: '/colheita',
+  path: '/colheita',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelGanhosRoute = ProdutorPainelGanhosRouteImport.update({
+  id: '/ganhos',
+  path: '/ganhos',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelLinkRoute = ProdutorPainelLinkRouteImport.update({
+  id: '/link',
+  path: '/link',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelPedidosRoute = ProdutorPainelPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelProdutosRoute = ProdutorPainelProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelRotaRoute = ProdutorPainelRotaRouteImport.update({
+  id: '/rota',
+  path: '/rota',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
+  '/produtor': typeof ProdutorRouteWithChildren
   '/p/$slug': typeof PSlugRouteWithChildren
   '/pedido/$token': typeof PedidoTokenRoute
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
+  '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
+  '/produtor/colheita': typeof ProdutorPainelColheitaRoute
+  '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/link': typeof ProdutorPainelLinkRoute
+  '/produtor/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/produtos': typeof ProdutorPainelProdutosRoute
+  '/produtor/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
   '/pedido/$token': typeof PedidoTokenRoute
+  '/produtor': typeof ProdutorIndexRoute
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
+  '/produtor/colheita': typeof ProdutorPainelColheitaRoute
+  '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/link': typeof ProdutorPainelLinkRoute
+  '/produtor/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/produtos': typeof ProdutorPainelProdutosRoute
+  '/produtor/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug': typeof PSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
+  '/produtor': typeof ProdutorRouteWithChildren
   '/p/$slug': typeof PSlugRouteWithChildren
   '/pedido/$token': typeof PedidoTokenRoute
+  '/produtor/_painel': typeof ProdutorPainelRouteWithChildren
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
+  '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
+  '/produtor/_painel/colheita': typeof ProdutorPainelColheitaRoute
+  '/produtor/_painel/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/_painel/link': typeof ProdutorPainelLinkRoute
+  '/produtor/_painel/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/_painel/produtos': typeof ProdutorPainelProdutosRoute
+  '/produtor/_painel/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
 export interface FileRouteTypes {
@@ -76,25 +162,58 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/design'
+    | '/produtor'
     | '/p/$slug'
     | '/pedido/$token'
+    | '/produtor/cadastro'
+    | '/produtor/'
     | '/p/$slug/pedido'
+    | '/produtor/colheita'
+    | '/produtor/ganhos'
+    | '/produtor/link'
+    | '/produtor/pedidos'
+    | '/produtor/produtos'
+    | '/produtor/rota'
     | '/p/$slug/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design' | '/pedido/$token' | '/p/$slug/pedido' | '/p/$slug'
+  to:
+    | '/'
+    | '/design'
+    | '/pedido/$token'
+    | '/produtor'
+    | '/produtor/cadastro'
+    | '/p/$slug/pedido'
+    | '/produtor/colheita'
+    | '/produtor/ganhos'
+    | '/produtor/link'
+    | '/produtor/pedidos'
+    | '/produtor/produtos'
+    | '/produtor/rota'
+    | '/p/$slug'
   id:
     | '__root__'
     | '/'
     | '/design'
+    | '/produtor'
     | '/p/$slug'
     | '/pedido/$token'
+    | '/produtor/_painel'
+    | '/produtor/cadastro'
+    | '/produtor/'
     | '/p/$slug/pedido'
+    | '/produtor/_painel/colheita'
+    | '/produtor/_painel/ganhos'
+    | '/produtor/_painel/link'
+    | '/produtor/_painel/pedidos'
+    | '/produtor/_painel/produtos'
+    | '/produtor/_painel/rota'
     | '/p/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DesignRoute: typeof DesignRoute
+  ProdutorRoute: typeof ProdutorRouteWithChildren
   PSlugRoute: typeof PSlugRouteWithChildren
   PedidoTokenRoute: typeof PedidoTokenRoute
 }
@@ -115,6 +234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produtor': {
+      id: '/produtor'
+      path: '/produtor'
+      fullPath: '/produtor'
+      preLoaderRoute: typeof ProdutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/p/$slug': {
       id: '/p/$slug'
       path: '/p/$slug'
@@ -128,6 +254,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/pedido/$token'
       preLoaderRoute: typeof PedidoTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/produtor/': {
+      id: '/produtor/'
+      path: '/'
+      fullPath: '/produtor/'
+      preLoaderRoute: typeof ProdutorIndexRouteImport
+      parentRoute: typeof ProdutorRoute
+    }
+    '/produtor/_painel': {
+      id: '/produtor/_painel'
+      path: ''
+      fullPath: '/produtor'
+      preLoaderRoute: typeof ProdutorPainelRouteImport
+      parentRoute: typeof ProdutorRoute
+    }
+    '/produtor/cadastro': {
+      id: '/produtor/cadastro'
+      path: '/cadastro'
+      fullPath: '/produtor/cadastro'
+      preLoaderRoute: typeof ProdutorCadastroRouteImport
+      parentRoute: typeof ProdutorRoute
     }
     '/p/$slug/': {
       id: '/p/$slug/'
@@ -143,8 +290,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PSlugPedidoRouteImport
       parentRoute: typeof PSlugRoute
     }
+    '/produtor/_painel/colheita': {
+      id: '/produtor/_painel/colheita'
+      path: '/colheita'
+      fullPath: '/produtor/colheita'
+      preLoaderRoute: typeof ProdutorPainelColheitaRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/ganhos': {
+      id: '/produtor/_painel/ganhos'
+      path: '/ganhos'
+      fullPath: '/produtor/ganhos'
+      preLoaderRoute: typeof ProdutorPainelGanhosRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/link': {
+      id: '/produtor/_painel/link'
+      path: '/link'
+      fullPath: '/produtor/link'
+      preLoaderRoute: typeof ProdutorPainelLinkRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/pedidos': {
+      id: '/produtor/_painel/pedidos'
+      path: '/pedidos'
+      fullPath: '/produtor/pedidos'
+      preLoaderRoute: typeof ProdutorPainelPedidosRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/produtos': {
+      id: '/produtor/_painel/produtos'
+      path: '/produtos'
+      fullPath: '/produtor/produtos'
+      preLoaderRoute: typeof ProdutorPainelProdutosRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/rota': {
+      id: '/produtor/_painel/rota'
+      path: '/rota'
+      fullPath: '/produtor/rota'
+      preLoaderRoute: typeof ProdutorPainelRotaRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
   }
 }
+
+interface ProdutorPainelRouteChildren {
+  ProdutorPainelColheitaRoute: typeof ProdutorPainelColheitaRoute
+  ProdutorPainelGanhosRoute: typeof ProdutorPainelGanhosRoute
+  ProdutorPainelLinkRoute: typeof ProdutorPainelLinkRoute
+  ProdutorPainelPedidosRoute: typeof ProdutorPainelPedidosRoute
+  ProdutorPainelProdutosRoute: typeof ProdutorPainelProdutosRoute
+  ProdutorPainelRotaRoute: typeof ProdutorPainelRotaRoute
+}
+
+const ProdutorPainelRouteChildren: ProdutorPainelRouteChildren = {
+  ProdutorPainelColheitaRoute: ProdutorPainelColheitaRoute,
+  ProdutorPainelGanhosRoute: ProdutorPainelGanhosRoute,
+  ProdutorPainelLinkRoute: ProdutorPainelLinkRoute,
+  ProdutorPainelPedidosRoute: ProdutorPainelPedidosRoute,
+  ProdutorPainelProdutosRoute: ProdutorPainelProdutosRoute,
+  ProdutorPainelRotaRoute: ProdutorPainelRotaRoute,
+}
+
+const ProdutorPainelRouteWithChildren = ProdutorPainelRoute._addFileChildren(
+  ProdutorPainelRouteChildren,
+)
+
+interface ProdutorRouteChildren {
+  ProdutorPainelRoute: typeof ProdutorPainelRouteWithChildren
+  ProdutorCadastroRoute: typeof ProdutorCadastroRoute
+  ProdutorIndexRoute: typeof ProdutorIndexRoute
+}
+
+const ProdutorRouteChildren: ProdutorRouteChildren = {
+  ProdutorPainelRoute: ProdutorPainelRouteWithChildren,
+  ProdutorCadastroRoute: ProdutorCadastroRoute,
+  ProdutorIndexRoute: ProdutorIndexRoute,
+}
+
+const ProdutorRouteWithChildren = ProdutorRoute._addFileChildren(
+  ProdutorRouteChildren,
+)
 
 interface PSlugRouteChildren {
   PSlugPedidoRoute: typeof PSlugPedidoRoute
@@ -161,6 +388,7 @@ const PSlugRouteWithChildren = PSlugRoute._addFileChildren(PSlugRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DesignRoute: DesignRoute,
+  ProdutorRoute: ProdutorRouteWithChildren,
   PSlugRoute: PSlugRouteWithChildren,
   PedidoTokenRoute: PedidoTokenRoute,
 }
