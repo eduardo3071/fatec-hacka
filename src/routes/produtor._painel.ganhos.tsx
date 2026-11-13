@@ -37,7 +37,8 @@ function Earnings() {
   const [month, setMonth] = useState(current);
   const e = earningsFor(month, state.orders, state.products);
   const [y, m] = month.split("-").map(Number);
-  const label = monthName.format(new Date(y ?? 2026, (m ?? 1) - 1, 1));
+  const raw = monthName.format(new Date(y ?? 2026, (m ?? 1) - 1, 1));
+  const label = raw.charAt(0).toUpperCase() + raw.slice(1);
   const pct = Math.round(e.coverage * 100);
 
   return (
@@ -47,7 +48,7 @@ function Earnings() {
         <button type="button" aria-label="Mês anterior" onClick={() => setMonth(shift(month, -1))} className="inline-flex size-12 cursor-pointer items-center justify-center rounded-full bg-sand text-forest">
           <ChevronLeft className="size-6" />
         </button>
-        <span className="font-display text-xl font-bold capitalize text-ink">{label}</span>
+        <span className="font-display text-xl font-bold text-ink">{label}</span>
         <button type="button" aria-label="Próximo mês" disabled={month >= current} onClick={() => setMonth(shift(month, 1))} className="inline-flex size-12 cursor-pointer items-center justify-center rounded-full bg-sand text-forest disabled:opacity-40">
           <ChevronRight className="size-6" />
         </button>

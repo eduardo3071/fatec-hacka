@@ -131,7 +131,7 @@ function Orders() {
           <Bell className="mt-1 size-6 shrink-0 text-leaf-dark" />
           <div className="flex-1">
             <p className="text-base text-ink">Quer saber na hora quando chegar pedido, mesmo com o app fechado?</p>
-            <Button className="mt-3" onClick={askNotify}>Quero ser avisado de novo pedido</Button>
+            <Button className="mt-3 h-auto min-h-12 whitespace-normal py-2 text-left" onClick={askNotify}>Quero ser avisado de novo pedido</Button>
           </div>
           <button
             type="button"
