@@ -13,9 +13,9 @@ export function BottomSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description?: string;
+  description?: string | undefined;
   children: React.ReactNode;
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | undefined;
 }) {
   return (
     <DrawerPrimitive.Root

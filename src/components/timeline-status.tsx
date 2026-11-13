@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export interface TimelineStep {
   label: string;
-  description?: string;
+  description?: string | undefined;
   state: "done" | "current" | "todo";
 }
 
