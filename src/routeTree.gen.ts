@@ -17,6 +17,7 @@ import { Route as PedidoTokenRouteImport } from './routes/pedido.$token'
 import { Route as ProdutorIndexRouteImport } from './routes/produtor.index'
 import { Route as ProdutorPainelRouteImport } from './routes/produtor._painel'
 import { Route as ProdutorCadastroRouteImport } from './routes/produtor.cadastro'
+import { Route as ProdutorEntrarRouteImport } from './routes/produtor.entrar'
 import { Route as PSlugIndexRouteImport } from './routes/p.$slug.index'
 import { Route as PSlugPedidoRouteImport } from './routes/p.$slug.pedido'
 import { Route as ProdutorPainelColheitaRouteImport } from './routes/produtor._painel.colheita'
@@ -63,6 +64,11 @@ const ProdutorPainelRoute = ProdutorPainelRouteImport.update({
 const ProdutorCadastroRoute = ProdutorCadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
+  getParentRoute: () => ProdutorRoute,
+} as any)
+const ProdutorEntrarRoute = ProdutorEntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
   getParentRoute: () => ProdutorRoute,
 } as any)
 const PSlugIndexRoute = PSlugIndexRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/p/$slug': typeof PSlugRouteWithChildren
   '/pedido/$token': typeof PedidoTokenRoute
   '/produtor/cadastro': typeof ProdutorCadastroRoute
+  '/produtor/entrar': typeof ProdutorEntrarRoute
   '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/pedido/$token': typeof PedidoTokenRoute
   '/produtor': typeof ProdutorIndexRoute
   '/produtor/cadastro': typeof ProdutorCadastroRoute
+  '/produtor/entrar': typeof ProdutorEntrarRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
   '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/pedido/$token': typeof PedidoTokenRoute
   '/produtor/_painel': typeof ProdutorPainelRouteWithChildren
   '/produtor/cadastro': typeof ProdutorCadastroRoute
+  '/produtor/entrar': typeof ProdutorEntrarRoute
   '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/_painel/colheita': typeof ProdutorPainelColheitaRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/pedido/$token'
     | '/produtor/cadastro'
+    | '/produtor/entrar'
     | '/produtor/'
     | '/p/$slug/pedido'
     | '/produtor/colheita'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/pedido/$token'
     | '/produtor'
     | '/produtor/cadastro'
+    | '/produtor/entrar'
     | '/p/$slug/pedido'
     | '/produtor/colheita'
     | '/produtor/ganhos'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/pedido/$token'
     | '/produtor/_painel'
     | '/produtor/cadastro'
+    | '/produtor/entrar'
     | '/produtor/'
     | '/p/$slug/pedido'
     | '/produtor/_painel/colheita'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/cadastro'
       fullPath: '/produtor/cadastro'
       preLoaderRoute: typeof ProdutorCadastroRouteImport
+      parentRoute: typeof ProdutorRoute
+    }
+    '/produtor/entrar': {
+      id: '/produtor/entrar'
+      path: '/entrar'
+      fullPath: '/produtor/entrar'
+      preLoaderRoute: typeof ProdutorEntrarRouteImport
       parentRoute: typeof ProdutorRoute
     }
     '/p/$slug/': {
@@ -360,12 +379,14 @@ const ProdutorPainelRouteWithChildren = ProdutorPainelRoute._addFileChildren(
 interface ProdutorRouteChildren {
   ProdutorPainelRoute: typeof ProdutorPainelRouteWithChildren
   ProdutorCadastroRoute: typeof ProdutorCadastroRoute
+  ProdutorEntrarRoute: typeof ProdutorEntrarRoute
   ProdutorIndexRoute: typeof ProdutorIndexRoute
 }
 
 const ProdutorRouteChildren: ProdutorRouteChildren = {
   ProdutorPainelRoute: ProdutorPainelRouteWithChildren,
   ProdutorCadastroRoute: ProdutorCadastroRoute,
+  ProdutorEntrarRoute: ProdutorEntrarRoute,
   ProdutorIndexRoute: ProdutorIndexRoute,
 }
 
