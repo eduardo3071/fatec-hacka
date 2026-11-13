@@ -1,20 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Mic, Smartphone } from "lucide-react";
+import { ArrowRight, ShoppingBasket, Sprout } from "lucide-react";
 
 import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatMoney } from "@/lib/format";
-import { PRODUCTS, PRODUCER } from "@/lib/mock";
+import { Button } from "@/components/ui/button";
+import { apiEnabled } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Colheita Certa — peça por toque, colha com a lista pronta" },
+      { title: "Colheita Certa — entrar como produtor ou comprador" },
       {
         name: "description",
         content:
-          "Pedidos por toque e por voz para horticultores do Alto Tietê (SP) e seus compradores.",
+          "Escolha: vender e colher com a lista pronta, ou pedir por toque e por voz.",
       },
       { property: "og:title", content: "Colheita Certa" },
       {
@@ -35,65 +34,80 @@ function Index() {
     <div className="flex min-h-screen flex-col bg-forest">
       <header className="mx-auto flex w-full max-w-md items-center justify-between px-6 py-6">
         <Logo variant="light" size={36} />
-        <Badge variant="paid">demo visual</Badge>
+        {!apiEnabled ? <Badge variant="paid">dados de exemplo</Badge> : null}
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-8 px-6 pb-10">
         <div className="animate-fade-up">
-          <Logo variant="light" size={64} />
-          <h1 className="mt-8 font-display text-4xl leading-tight font-bold text-cream">
-            Venda direto, colha com a lista pronta.
+          <Logo variant="light" size={64} showWord={false} />
+          <h1 className="mt-6 font-display text-4xl leading-tight font-bold text-cream">
+            Como você quer entrar?
           </h1>
-          <p className="mt-4 text-lg text-cream/80">
-            Pedidos por toque ou por voz para quem planta no Alto Tietê e para quem compra todo dia.
+          <p className="mt-3 text-lg text-cream/80">
+            Toque em uma opção para continuar.
           </p>
         </div>
 
         <div className="animate-fade-up flex flex-col gap-4 [animation-delay:120ms]">
-          <Button asChild size="lg" className="w-full">
+          <Button
+            asChild
+            variant="amber"
+            size="lg"
+            className="h-20 min-h-20 w-full justify-between rounded-3xl px-6 text-left"
+          >
             <Link to="/produtor">
-              <Smartphone />
-              Entrar como produtor
-            </Link>
-          </Button>
-          <Button asChild variant="amber" size="lg" className="w-full">
-            <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
-              <Mic />
-              Ver a vitrine do Marcos
-            </Link>
-          </Button>
-        </div>
-
-        <div className="animate-fade-up rounded-3xl border-2 border-line/25 bg-forest-2 p-6 [animation-delay:220ms]">
-          <p className="font-display text-xl font-bold text-cream">
-            {PRODUCER.name}, {PRODUCER.city}
-          </p>
-          <p className="mt-1 text-base text-cream/75">Entrega amanhã</p>
-          <ul className="mt-4 space-y-3">
-            {PRODUCTS.slice(0, 3).map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3">
-                <span className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="inline-flex size-11 items-center justify-center rounded-xl bg-forest-2 text-xl"
-                  >
-                    {p.glyph}
+              <span className="flex items-center gap-4">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-12 items-center justify-center rounded-2xl bg-forest/15"
+                >
+                  <Sprout className="size-7 text-forest" />
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-display text-xl leading-tight font-bold">
+                    Sou produtor
                   </span>
-                  <span className="text-base text-cream">{p.name}</span>
+                  <span className="text-[15px] font-medium text-forest/80">
+                    Pedidos, colheita, rota e ganhos
+                  </span>
                 </span>
-                <span className="font-display text-lg font-bold text-amber">
-                  {formatMoney(p.price)}
+              </span>
+              <ArrowRight className="size-6 shrink-0 text-forest" />
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            size="lg"
+            className="h-20 min-h-20 w-full justify-between rounded-3xl border-2 border-cream/35 bg-forest-2 px-6 text-left text-cream hover:border-cream/70 hover:bg-forest-2"
+          >
+            <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
+              <span className="flex items-center gap-4">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-12 items-center justify-center rounded-2xl bg-cream/10"
+                >
+                  <ShoppingBasket className="size-7 text-cream" />
                 </span>
-              </li>
-            ))}
-          </ul>
+                <span className="flex flex-col">
+                  <span className="font-display text-xl leading-tight font-bold">
+                    Sou comprador
+                  </span>
+                  <span className="text-[15px] font-medium text-cream/75">
+                    Pedir por toque ou por voz
+                  </span>
+                </span>
+              </span>
+              <ArrowRight className="size-6 shrink-0 text-cream" />
+            </Link>
+          </Button>
         </div>
       </main>
 
       <footer className="mx-auto w-full max-w-md px-6 pb-8">
         <Link
           to="/design"
-          className="inline-flex min-h-12 items-center gap-2 text-base font-semibold text-cream underline underline-offset-4"
+          className="inline-flex min-h-12 items-center gap-2 text-[15px] font-semibold text-cream/70 underline underline-offset-4 hover:text-cream"
         >
           Ver a base visual
           <ArrowRight className="size-4" />
