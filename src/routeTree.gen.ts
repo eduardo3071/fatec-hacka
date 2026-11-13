@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PSlugIndexRouteImport } from './routes/p.$slug.index'
+import { Route as PSlugPedidoRouteImport } from './routes/p.$slug.pedido'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,16 +35,23 @@ const PSlugIndexRoute = PSlugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PSlugRoute,
 } as any)
+const PSlugPedidoRoute = PSlugPedidoRouteImport.update({
+  id: '/pedido',
+  path: '/pedido',
+  getParentRoute: () => PSlugRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
   '/p/$slug': typeof PSlugRouteWithChildren
+  '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
+  '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/p/$slug': typeof PSlugIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/design': typeof DesignRoute
   '/p/$slug': typeof PSlugRouteWithChildren
+  '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/design' | '/p/$slug' | '/p/$slug/'
+  fullPaths: '/' | '/design' | '/p/$slug' | '/p/$slug/pedido' | '/p/$slug/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design' | '/p/$slug'
-  id: '__root__' | '/' | '/design' | '/p/$slug' | '/p/$slug/'
+  to: '/' | '/design' | '/p/$slug/pedido' | '/p/$slug'
+  id:
+    '__root__' | '/' | '/design' | '/p/$slug' | '/p/$slug/pedido' | '/p/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +107,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PSlugIndexRouteImport
       parentRoute: typeof PSlugRoute
     }
+    '/p/$slug/pedido': {
+      id: '/p/$slug/pedido'
+      path: '/pedido'
+      fullPath: '/p/$slug/pedido'
+      preLoaderRoute: typeof PSlugPedidoRouteImport
+      parentRoute: typeof PSlugRoute
+    }
   }
 }
 
 interface PSlugRouteChildren {
+  PSlugPedidoRoute: typeof PSlugPedidoRoute
   PSlugIndexRoute: typeof PSlugIndexRoute
 }
 
 const PSlugRouteChildren: PSlugRouteChildren = {
+  PSlugPedidoRoute: PSlugPedidoRoute,
   PSlugIndexRoute: PSlugIndexRoute,
 }
 
