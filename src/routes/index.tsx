@@ -43,8 +43,7 @@ function Index() {
             Venda direto, colha com a lista pronta.
           </h1>
           <p className="mt-4 text-lg text-cream/80">
-            Pedidos por toque ou por voz para quem planta no Alto Tietê e para quem compra todo
-            dia.
+            Pedidos por toque ou por voz para quem planta no Alto Tietê e para quem compra todo dia.
           </p>
         </div>
 

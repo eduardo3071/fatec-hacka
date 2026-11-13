@@ -40,9 +40,7 @@ export function Logo({
         />
       </svg>
       {showWord ? (
-        <span className={cn("font-display font-bold leading-none", wordColor)}>
-          Colheita Certa
-        </span>
+        <span className={cn("font-display font-bold leading-none", wordColor)}>Colheita Certa</span>
       ) : null}
     </span>
   );

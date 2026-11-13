@@ -16,7 +16,14 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Chip } from "@/components/chip";
 import { Stepper } from "@/components/stepper";
@@ -27,7 +34,8 @@ import { Logo } from "@/components/logo";
 import { formatMoney, formatQty } from "@/lib/format";
 import { PRODUCTS, SAMPLE_ORDER, orderTotal, type Product } from "@/lib/mock";
 
-export const Route = createFileRoute("/design")({  head: () => ({
+export const Route = createFileRoute("/design")({
+  head: () => ({
     meta: [
       { title: "Base visual — Colheita Certa" },
       {
@@ -257,7 +265,10 @@ function DesignPage() {
           </Card>
         </Section>
 
-        <Section title="Vazio, carregando e aviso" hint="Frases curtas, no tom de quem fala com o freguês.">
+        <Section
+          title="Vazio, carregando e aviso"
+          hint="Frases curtas, no tom de quem fala com o freguês."
+        >
           <div className="grid gap-4">
             <EmptyState
               icon={ShoppingCart}
@@ -383,38 +394,40 @@ function DesignPage() {
             onOpenChange={setSheetOpen}
             title="Pedir falando"
             description="Fale o pedido: “vinte maços de alface e dez de couve, amanhã às sete”."
-        footer={
-          <div className="flex gap-3">
-            <Button className="flex-1" onClick={() => setSheetOpen(false)}>
-              Está certo, ir para o pedido
-            </Button>
-            <Button variant="outline" onClick={() => setSheetOpen(false)}>
-              Gravar de novo
-            </Button>
-          </div>
-        }
-      >
-        <div className="flex flex-col items-center gap-6 py-6">
-          <Button variant="amber" size="icon" className="size-24" aria-label="Gravar pedido">
-            <Mic />
-          </Button>
-          <p className="text-center text-base text-muted-text">Toque para gravar. 00:00</p>
-          <div className="w-full space-y-3">
-            {PRODUCTS.slice(0, 2).map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between gap-3 rounded-2xl border-2 border-line bg-cream p-4"
-              >
-                <div>
-                  <p className="font-display text-lg font-bold text-ink">{p.name}</p>
-                  <p className="text-sm text-muted-text">{formatMoney(p.price)} / {p.unit}</p>
-                </div>
-                <Stepper value={1} onChange={() => {}} label={p.name} />
+            footer={
+              <div className="flex gap-3">
+                <Button className="flex-1" onClick={() => setSheetOpen(false)}>
+                  Está certo, ir para o pedido
+                </Button>
+                <Button variant="outline" onClick={() => setSheetOpen(false)}>
+                  Gravar de novo
+                </Button>
               </div>
-            ))}
-          </div>
-        </div>
-      </BottomSheet>
+            }
+          >
+            <div className="flex flex-col items-center gap-6 py-6">
+              <Button variant="amber" size="icon" className="size-24" aria-label="Gravar pedido">
+                <Mic />
+              </Button>
+              <p className="text-center text-base text-muted-text">Toque para gravar. 00:00</p>
+              <div className="w-full space-y-3">
+                {PRODUCTS.slice(0, 2).map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 rounded-2xl border-2 border-line bg-cream p-4"
+                  >
+                    <div>
+                      <p className="font-display text-lg font-bold text-ink">{p.name}</p>
+                      <p className="text-sm text-muted-text">
+                        {formatMoney(p.price)} / {p.unit}
+                      </p>
+                    </div>
+                    <Stepper value={1} onChange={() => {}} label={p.name} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </BottomSheet>
         </Suspense>
       ) : null}
     </div>
