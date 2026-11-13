@@ -11,6 +11,10 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      // The PWA plugin only runs in the app build; tests get a no-op.
+      "virtual:pwa-register": path.resolve(__dirname, "./src/test/stubs/pwa-register.ts"),
+    },
   },
 });
