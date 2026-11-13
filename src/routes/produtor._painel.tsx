@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet } from "@tanstack/react-router";
+import { PanelPending } from "@/components/list-states";
 import { useEffect } from "react";
 import { ClipboardList, Sprout, Route as RouteIcon, TrendingUp, Menu, Link2, Package } from "lucide-react";
 
@@ -33,19 +34,23 @@ const EXTRA = [
 ] as const;
 
 function PanelShell() {
-  const { state, update } = usePanel();
+  const { state, update, live, phase } = usePanel();
   const newCount = state.orders.filter((o) => o.status === "pendente").length;
 
   // Opening the panel directly (demo) without signup: fill in Marcos.
   useEffect(() => {
-    if (!state.profile) update((s) => ({ ...s, profile: DEMO_PROFILE }));
-  }, [state.profile, update]);
+    if (!live && !state.profile) update((s) => ({ ...s, profile: DEMO_PROFILE }));
+  }, [live, state.profile, update]);
 
   const badge = newCount > 0 ? (
     <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-amber px-1.5 text-[14px] font-bold leading-6 text-forest">
       {newCount}
     </span>
   ) : null;
+
+  if (live && phase === "signed-out") return <Navigate to="/produtor/entrar" replace />;
+  if (live && phase === "no-profile") return <Navigate to="/produtor/cadastro" replace />;
+  if (live && phase === "loading" && !state.profile) return <PanelPending />;
 
   return (
     <div className="min-h-screen bg-cream md:flex">
