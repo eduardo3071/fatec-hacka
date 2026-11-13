@@ -21,7 +21,9 @@ import { Route as PSlugIndexRouteImport } from './routes/p.$slug.index'
 import { Route as PSlugPedidoRouteImport } from './routes/p.$slug.pedido'
 import { Route as ProdutorPainelColheitaRouteImport } from './routes/produtor._painel.colheita'
 import { Route as ProdutorPainelGanhosRouteImport } from './routes/produtor._painel.ganhos'
+import { Route as ProdutorPainelLinkRouteImport } from './routes/produtor._painel.link'
 import { Route as ProdutorPainelPedidosRouteImport } from './routes/produtor._painel.pedidos'
+import { Route as ProdutorPainelProdutosRouteImport } from './routes/produtor._painel.produtos'
 import { Route as ProdutorPainelRotaRouteImport } from './routes/produtor._painel.rota'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,9 +85,19 @@ const ProdutorPainelGanhosRoute = ProdutorPainelGanhosRouteImport.update({
   path: '/ganhos',
   getParentRoute: () => ProdutorPainelRoute,
 } as any)
+const ProdutorPainelLinkRoute = ProdutorPainelLinkRouteImport.update({
+  id: '/link',
+  path: '/link',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
 const ProdutorPainelPedidosRoute = ProdutorPainelPedidosRouteImport.update({
   id: '/pedidos',
   path: '/pedidos',
+  getParentRoute: () => ProdutorPainelRoute,
+} as any)
+const ProdutorPainelProdutosRoute = ProdutorPainelProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
   getParentRoute: () => ProdutorPainelRoute,
 } as any)
 const ProdutorPainelRotaRoute = ProdutorPainelRotaRouteImport.update({
@@ -105,7 +117,9 @@ export interface FileRoutesByFullPath {
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
   '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/link': typeof ProdutorPainelLinkRoute
   '/produtor/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/produtos': typeof ProdutorPainelProdutosRoute
   '/produtor/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
@@ -118,7 +132,9 @@ export interface FileRoutesByTo {
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
   '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/link': typeof ProdutorPainelLinkRoute
   '/produtor/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/produtos': typeof ProdutorPainelProdutosRoute
   '/produtor/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug': typeof PSlugIndexRoute
 }
@@ -135,7 +151,9 @@ export interface FileRoutesById {
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/_painel/colheita': typeof ProdutorPainelColheitaRoute
   '/produtor/_painel/ganhos': typeof ProdutorPainelGanhosRoute
+  '/produtor/_painel/link': typeof ProdutorPainelLinkRoute
   '/produtor/_painel/pedidos': typeof ProdutorPainelPedidosRoute
+  '/produtor/_painel/produtos': typeof ProdutorPainelProdutosRoute
   '/produtor/_painel/rota': typeof ProdutorPainelRotaRoute
   '/p/$slug/': typeof PSlugIndexRoute
 }
@@ -152,7 +170,9 @@ export interface FileRouteTypes {
     | '/p/$slug/pedido'
     | '/produtor/colheita'
     | '/produtor/ganhos'
+    | '/produtor/link'
     | '/produtor/pedidos'
+    | '/produtor/produtos'
     | '/produtor/rota'
     | '/p/$slug/'
   fileRoutesByTo: FileRoutesByTo
@@ -165,7 +185,9 @@ export interface FileRouteTypes {
     | '/p/$slug/pedido'
     | '/produtor/colheita'
     | '/produtor/ganhos'
+    | '/produtor/link'
     | '/produtor/pedidos'
+    | '/produtor/produtos'
     | '/produtor/rota'
     | '/p/$slug'
   id:
@@ -181,7 +203,9 @@ export interface FileRouteTypes {
     | '/p/$slug/pedido'
     | '/produtor/_painel/colheita'
     | '/produtor/_painel/ganhos'
+    | '/produtor/_painel/link'
     | '/produtor/_painel/pedidos'
+    | '/produtor/_painel/produtos'
     | '/produtor/_painel/rota'
     | '/p/$slug/'
   fileRoutesById: FileRoutesById
@@ -280,11 +304,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutorPainelGanhosRouteImport
       parentRoute: typeof ProdutorPainelRoute
     }
+    '/produtor/_painel/link': {
+      id: '/produtor/_painel/link'
+      path: '/link'
+      fullPath: '/produtor/link'
+      preLoaderRoute: typeof ProdutorPainelLinkRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
     '/produtor/_painel/pedidos': {
       id: '/produtor/_painel/pedidos'
       path: '/pedidos'
       fullPath: '/produtor/pedidos'
       preLoaderRoute: typeof ProdutorPainelPedidosRouteImport
+      parentRoute: typeof ProdutorPainelRoute
+    }
+    '/produtor/_painel/produtos': {
+      id: '/produtor/_painel/produtos'
+      path: '/produtos'
+      fullPath: '/produtor/produtos'
+      preLoaderRoute: typeof ProdutorPainelProdutosRouteImport
       parentRoute: typeof ProdutorPainelRoute
     }
     '/produtor/_painel/rota': {
@@ -300,14 +338,18 @@ declare module '@tanstack/react-router' {
 interface ProdutorPainelRouteChildren {
   ProdutorPainelColheitaRoute: typeof ProdutorPainelColheitaRoute
   ProdutorPainelGanhosRoute: typeof ProdutorPainelGanhosRoute
+  ProdutorPainelLinkRoute: typeof ProdutorPainelLinkRoute
   ProdutorPainelPedidosRoute: typeof ProdutorPainelPedidosRoute
+  ProdutorPainelProdutosRoute: typeof ProdutorPainelProdutosRoute
   ProdutorPainelRotaRoute: typeof ProdutorPainelRotaRoute
 }
 
 const ProdutorPainelRouteChildren: ProdutorPainelRouteChildren = {
   ProdutorPainelColheitaRoute: ProdutorPainelColheitaRoute,
   ProdutorPainelGanhosRoute: ProdutorPainelGanhosRoute,
+  ProdutorPainelLinkRoute: ProdutorPainelLinkRoute,
   ProdutorPainelPedidosRoute: ProdutorPainelPedidosRoute,
+  ProdutorPainelProdutosRoute: ProdutorPainelProdutosRoute,
   ProdutorPainelRotaRoute: ProdutorPainelRotaRoute,
 }
 
