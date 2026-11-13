@@ -53,17 +53,17 @@ function Index() {
             asChild
             variant="amber"
             size="lg"
-            className="h-20 min-h-20 w-full justify-between rounded-3xl px-6 text-left"
+            className="h-20 min-h-20 w-full justify-between rounded-3xl px-6 text-left whitespace-normal"
           >
             <Link to="/produtor">
-              <span className="flex items-center gap-4">
+              <span className="flex min-w-0 items-center gap-4">
                 <span
                   aria-hidden="true"
-                  className="inline-flex size-12 items-center justify-center rounded-2xl bg-forest/15"
+                  className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-forest/15"
                 >
                   <Sprout className="size-7 text-forest" />
                 </span>
-                <span className="flex flex-col">
+                <span className="flex min-w-0 flex-col">
                   <span className="font-display text-xl leading-tight font-bold">
                     Sou produtor
                   </span>
