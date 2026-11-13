@@ -1,11 +1,13 @@
 import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 
 import { PageTitle } from "@/components/producer/day-picker";
 import { BigNumber } from "@/components/big-number";
 import { usePanel } from "@/lib/panel-context";
+import { producerApi, showApiError, type ApiEarnings } from "@/lib/api";
+import { ListError } from "@/components/list-states";
 import { earningsFor, MONTHLY_FEE } from "@/lib/producer";
 import { formatMoney } from "@/lib/format";
 
@@ -34,15 +36,45 @@ function shift(month: string, delta: number): string {
 }
 
 function Earnings() {
-  const { state } = usePanel();
+  const { state, live } = usePanel();
   const now = new Date();
   const current = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const [month, setMonth] = useState(current);
-  const e = earningsFor(month, state.orders, state.products);
+  const local = earningsFor(month, state.orders, state.products);
+  const [remote, setRemote] = useState<Record<string, ApiEarnings>>({});
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (!live || remote[month]) return;
+    let alive = true;
+    setFailed(false);
+    producerApi
+      .earnings(month)
+      .then((r) => alive && setRemote((m) => ({ ...m, [month]: r })))
+      .catch((err) => {
+        if (!alive) return;
+        setFailed(true);
+        showApiError(err);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [live, month, remote]);
+  const r = remote[month];
+  const e = !live
+    ? local
+    : r
+      ? {
+          revenue: r.revenue,
+          delivered: r.orders_delivered,
+          extraGain: r.extra_gain,
+          coverage: r.coverage_pct > 1 ? r.coverage_pct / 100 : r.coverage_pct,
+          feeTimes: Math.floor(r.extra_gain / MONTHLY_FEE),
+        }
+      : null;
   const [y, m] = month.split("-").map(Number);
   const raw = monthName.format(new Date(y ?? 2026, (m ?? 1) - 1, 1));
   const label = raw.charAt(0).toUpperCase() + raw.slice(1);
-  const pct = Math.round(e.coverage * 100);
+  const pct = e ? Math.round(e.coverage * 100) : 0;
 
   return (
     <div>
@@ -57,6 +89,9 @@ function Earnings() {
         </button>
       </div>
 
+      {!e ? (
+        <div className="mt-6">{failed ? <ListError onRetry={() => setRemote((m) => ({ ...m }))} /> : <ListSkeleton rows={2} />}</div>
+      ) : (<>
       <section className="mt-6 animate-fade-up rounded-3xl border-2 border-line bg-paper p-6" key={month}>
         <BigNumber value={formatMoney(Math.round(e.extraGain))} />
         <p className="mt-1 text-xl font-semibold text-ink">a mais que com o intermediário</p>
@@ -91,6 +126,7 @@ function Earnings() {
           Sua mensalidade de {formatMoney(MONTHLY_FEE).replace(",00", "")} se pagou {e.feeTimes === 1 ? "1 vez" : `${e.feeTimes} vezes`} este mês.
         </p>
       ) : null}
+      </>)}
     </div>
   );
 }
