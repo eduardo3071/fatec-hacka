@@ -47,6 +47,11 @@ export const Route = createFileRoute("/design")({  head: () => ({
   component: DesignPage,
 });
 
+// Loaded only when the sheet opens: vaul touches `document`, so it must not enter the server graph.
+const BottomSheet = lazy(() =>
+  import("@/components/bottom-sheet").then((m) => ({ default: m.BottomSheet })),
+);
+
 const PALETTE: { name: string; hex: string; use: string; token: string }[] = [
   { name: "Verde-floresta", hex: "#14301F", use: "Fundos escuros, títulos", token: "forest" },
   { name: "Floresta 2", hex: "#1D4029", use: "Cartões no escuro", token: "forest-2" },
@@ -371,11 +376,13 @@ function DesignPage() {
         </div>
       </main>
 
-      <BottomSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        title="Pedir falando"
-        description="Fale o pedido: “vinte maços de alface e dez de couve, amanhã às sete”."
+      {sheetOpen ? (
+        <Suspense fallback={null}>
+          <BottomSheet
+            open={sheetOpen}
+            onOpenChange={setSheetOpen}
+            title="Pedir falando"
+            description="Fale o pedido: “vinte maços de alface e dez de couve, amanhã às sete”."
         footer={
           <div className="flex gap-3">
             <Button className="flex-1" onClick={() => setSheetOpen(false)}>
