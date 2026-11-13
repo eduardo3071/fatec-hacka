@@ -16,6 +16,7 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PedidoTokenRouteImport } from './routes/pedido.$token'
 import { Route as ProdutorIndexRouteImport } from './routes/produtor.index'
 import { Route as ProdutorPainelRouteImport } from './routes/produtor._painel'
+import { Route as ProdutorCadastroRouteImport } from './routes/produtor.cadastro'
 import { Route as PSlugIndexRouteImport } from './routes/p.$slug.index'
 import { Route as PSlugPedidoRouteImport } from './routes/p.$slug.pedido'
 import { Route as ProdutorPainelColheitaRouteImport } from './routes/produtor._painel.colheita'
@@ -57,6 +58,11 @@ const ProdutorPainelRoute = ProdutorPainelRouteImport.update({
   id: '/_painel',
   getParentRoute: () => ProdutorRoute,
 } as any)
+const ProdutorCadastroRoute = ProdutorCadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => ProdutorRoute,
+} as any)
 const PSlugIndexRoute = PSlugIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/produtor': typeof ProdutorRouteWithChildren
   '/p/$slug': typeof PSlugRouteWithChildren
   '/pedido/$token': typeof PedidoTokenRoute
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
   '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/pedido/$token': typeof PedidoTokenRoute
   '/produtor': typeof ProdutorIndexRoute
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/colheita': typeof ProdutorPainelColheitaRoute
   '/produtor/ganhos': typeof ProdutorPainelGanhosRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/p/$slug': typeof PSlugRouteWithChildren
   '/pedido/$token': typeof PedidoTokenRoute
   '/produtor/_painel': typeof ProdutorPainelRouteWithChildren
+  '/produtor/cadastro': typeof ProdutorCadastroRoute
   '/produtor/': typeof ProdutorIndexRoute
   '/p/$slug/pedido': typeof PSlugPedidoRoute
   '/produtor/_painel/colheita': typeof ProdutorPainelColheitaRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/produtor'
     | '/p/$slug'
     | '/pedido/$token'
+    | '/produtor/cadastro'
     | '/produtor/'
     | '/p/$slug/pedido'
     | '/produtor/colheita'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/pedido/$token'
     | '/produtor'
+    | '/produtor/cadastro'
     | '/p/$slug/pedido'
     | '/produtor/colheita'
     | '/produtor/ganhos'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/pedido/$token'
     | '/produtor/_painel'
+    | '/produtor/cadastro'
     | '/produtor/'
     | '/p/$slug/pedido'
     | '/produtor/_painel/colheita'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutorPainelRouteImport
       parentRoute: typeof ProdutorRoute
     }
+    '/produtor/cadastro': {
+      id: '/produtor/cadastro'
+      path: '/cadastro'
+      fullPath: '/produtor/cadastro'
+      preLoaderRoute: typeof ProdutorCadastroRouteImport
+      parentRoute: typeof ProdutorRoute
+    }
     '/p/$slug/': {
       id: '/p/$slug/'
       path: '/'
@@ -298,11 +317,13 @@ const ProdutorPainelRouteWithChildren = ProdutorPainelRoute._addFileChildren(
 
 interface ProdutorRouteChildren {
   ProdutorPainelRoute: typeof ProdutorPainelRouteWithChildren
+  ProdutorCadastroRoute: typeof ProdutorCadastroRoute
   ProdutorIndexRoute: typeof ProdutorIndexRoute
 }
 
 const ProdutorRouteChildren: ProdutorRouteChildren = {
   ProdutorPainelRoute: ProdutorPainelRouteWithChildren,
+  ProdutorCadastroRoute: ProdutorCadastroRoute,
   ProdutorIndexRoute: ProdutorIndexRoute,
 }
 

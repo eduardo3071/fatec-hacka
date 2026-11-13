@@ -48,9 +48,11 @@ function Index() {
         </div>
 
         <div className="animate-fade-up flex flex-col gap-4 [animation-delay:120ms]">
-          <Button size="lg" className="w-full">
-            <Smartphone />
-            Entrar como produtor
+          <Button asChild size="lg" className="w-full">
+            <Link to="/produtor">
+              <Smartphone />
+              Entrar como produtor
+            </Link>
           </Button>
           <Button asChild variant="amber" size="lg" className="w-full">
             <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
