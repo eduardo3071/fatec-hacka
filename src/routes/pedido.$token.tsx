@@ -113,9 +113,11 @@ function Tracking() {
               </div>
               <p className="mt-1 text-base text-ink">{STATUS_TEXT[order.status]}.</p>
               <p className="mt-3 inline-flex items-center gap-2 text-base text-muted-text">
-                <CalendarClock className="size-5" aria-hidden="true" />
-                Entrega <strong className="text-ink">{formatDate(order.deliveryDate)}</strong>, às{" "}
-                <strong className="text-ink">{order.deliveryTime}</strong>
+                <CalendarClock className="size-5 shrink-0" aria-hidden="true" />
+                <span>
+                  Entrega <strong className="text-ink">{formatDate(order.deliveryDate)}</strong>, às{" "}
+                  <strong className="text-ink">{order.deliveryTime}</strong>
+                </span>
               </p>
 
               {order.status === "rejected" ? (
