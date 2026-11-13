@@ -43,7 +43,3 @@ export function BottomSheet({
 }
 
 export const BottomSheetClose = Drawer.Close;
-
-export function sheetClass(className?: string) {
-  return cn(className);
-}
