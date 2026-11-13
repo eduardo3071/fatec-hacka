@@ -31,12 +31,16 @@ export const Route = createFileRoute("/produtor/_painel/rota")({
 });
 
 function RoutePage() {
-  const { state, update } = usePanel();
+  const { state, update, live, actions } = usePanel();
   const [date, setDate] = useState(isoDay(0));
   const stops = routeFor(date, state.orders);
   const toReceive = stops.filter((s) => !s.paid).reduce((t, s) => t + orderTotal(s, state.products), 0);
 
-  function patch(id: string, p: { status?: "entregue"; paid?: boolean }, msg: string) {
+  async function patch(id: string, p: { status?: "entregue"; paid?: boolean }, msg: string) {
+    if (live) {
+      if (await actions.orderAction(id, p.status === "entregue" ? "deliver" : "pay")) toast.success(msg);
+      return;
+    }
     update((s) => ({ ...s, orders: s.orders.map((o) => (o.id === id ? { ...o, ...p } : o)) }));
     toast.success(msg);
   }

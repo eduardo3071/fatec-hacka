@@ -1,0 +1,20 @@
+import type { components } from "./schema";
+
+type S = components["schemas"];
+export type ApiProduct = S["ProductOut"];
+export type ApiProductIn = S["ProductIn"];
+export type ApiProductPatch = S["ProductPatch"];
+export type ApiProducer = S["ProducerOut"];
+export type ApiProducerIn = S["ProducerIn"];
+export type ApiProducerPatch = S["ProducerPatch"];
+export type ApiOrder = S["OrderOut"];
+export type ApiOrderIn = S["OrderIn"];
+export type ApiPublicOrder = S["PublicOrderOut"];
+export type ApiCatalog = S["PublicCatalog"];
+export type ApiLastOrder = S["LastOrder"];
+export type ApiVoiceDraft = S["VoiceOrderDraft"];
+export type ApiHarvest = S["HarvestOut"];
+export type ApiEarnings = S["EarningsOut"];
+export type ApiCatalogProposal = S["CatalogProposal"];
+export type ApiUnit = S["ProductIn"]["unit"];
+export type ApiPushSubscribe = S["PushSubscribeIn"];

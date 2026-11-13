@@ -10,6 +10,7 @@ import { Chip } from "@/components/chip";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePanel } from "@/lib/panel-context";
+import { subscribePush } from "@/lib/push";
 import { incomingOrder, orderTotal, type PanelOrder, type PanelProduct, type PanelStatus } from "@/lib/producer";
 import { formatDate, formatMoney, formatQty } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -87,7 +88,7 @@ const TABS: { key: Exclude<PanelStatus, "pendente">; label: string; empty: strin
 ];
 
 function Orders() {
-  const { state, update } = usePanel();
+  const { state, update, live, actions } = usePanel();
   const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("aceito");
   const products = state.products;
 
@@ -99,16 +100,21 @@ function Orders() {
 
   // Demo: one new order arrives a few seconds after opening, once per session.
   useEffect(() => {
-    if (sessionStorage.getItem("cc:incoming")) return;
+    if (live || sessionStorage.getItem("cc:incoming")) return;
     const id = window.setTimeout(() => {
       sessionStorage.setItem("cc:incoming", "1");
       update((s) => ({ ...s, orders: [incomingOrder(), ...s.orders] }));
       toast("Pedido novo da Lanchonete C", { icon: "🌱" });
     }, 5000);
     return () => window.clearTimeout(id);
-  }, [update]);
+  }, [update, live]);
 
-  function decide(id: string, status: "aceito" | "recusado") {
+  async function decide(id: string, status: "aceito" | "recusado") {
+    if (live) {
+      if (await actions.orderAction(id, status === "aceito" ? "accept" : "reject"))
+        toast.success(status === "aceito" ? "Pedido aceito. Já está na colheita." : "Pedido recusado. O comprador será avisado.");
+      return;
+    }
     update((s) => ({ ...s, orders: s.orders.map((o) => (o.id === id ? { ...o, status, isNew: false } : o)) }));
     toast.success(status === "aceito" ? "Pedido aceito. Já está na colheita." : "Pedido recusado. O comprador será avisado.");
   }
@@ -118,6 +124,7 @@ function Orders() {
     if ("Notification" in window) {
       try {
         result = await Notification.requestPermission();
+        if (result === "granted" && live) await subscribePush();
       } catch {
         /* ignore */
       }

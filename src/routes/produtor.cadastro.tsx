@@ -28,7 +28,7 @@ const field = "h-14 rounded-2xl border-2 border-line bg-paper text-lg";
 const label = "text-[15px] font-semibold text-ink";
 
 function Signup() {
-  const { update } = usePanel();
+  const { update, live, actions } = usePanel();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
@@ -41,7 +41,12 @@ function Signup() {
   const finalSlug = slugTouched ? slug : autoSlug;
   const status = slugStatus(finalSlug);
 
-  function finish(items: Proposal[]) {
+  async function finish(items: Proposal[]) {
+    if (live) {
+      const ok = await actions.createProfile({ name: name.trim(), city: city.trim(), slug: finalSlug, pixKey: pix.trim() }, items);
+      if (ok) navigate({ to: "/produtor/pedidos" });
+      return;
+    }
     const products: PanelProduct[] = items.map((p, i) => ({
       id: `u${Date.now()}${i}`,
       name: p.name.trim(),

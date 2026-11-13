@@ -20,7 +20,10 @@ export const Route = createFileRoute("/produtor/")({
 });
 
 function Entry() {
-  const { state } = usePanel();
+  const { state, live, phase } = usePanel();
+  const target = !live
+    ? state.profile ? "/produtor/pedidos" : "/produtor/cadastro"
+    : phase === "ready" ? "/produtor/pedidos" : phase === "no-profile" ? "/produtor/cadastro" : "/produtor/entrar";
   const navigate = useNavigate();
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-forest px-6 pb-10 pt-12 text-cream">
@@ -40,11 +43,11 @@ function Entry() {
           variant="amber"
           size="lg"
           className="mt-10 h-16 w-full animate-fade-up text-xl [animation-delay:160ms]"
-          onClick={() => navigate({ to: state.profile ? "/produtor/pedidos" : "/produtor/cadastro" })}
+          onClick={() => navigate({ to: target })}
         >
           Entrar <ArrowRight />
         </Button>
-        <p className="mt-3 text-center text-[15px] text-cream/80">Exemplo: sem senha por enquanto.</p>
+        <p className="mt-3 text-center text-[15px] text-cream/80">{live ? "Sem senha: entra com um link no e-mail." : "Exemplo: sem senha por enquanto."}</p>
       </div>
     </div>
   );

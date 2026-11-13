@@ -1,0 +1,2522 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Colheita Certa API",
+    "description": "Backend da Fase 1: catálogo, pedidos, colheita e rota, ganho a mais, IA de voz e foto.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "infra"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orders/{tracking_token}": {
+      "get": {
+        "tags": [
+          "comprador (sem login)"
+        ],
+        "summary": "Track Order",
+        "operationId": "track_order_public_orders__tracking_token__get",
+        "parameters": [
+          {
+            "name": "tracking_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tracking Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/{slug}/catalog": {
+      "get": {
+        "tags": [
+          "comprador (sem login)"
+        ],
+        "summary": "Catalog",
+        "operationId": "catalog_public__slug__catalog_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCatalog"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/{slug}/orders": {
+      "post": {
+        "tags": [
+          "comprador (sem login)"
+        ],
+        "summary": "Create Order",
+        "operationId": "create_order_public__slug__orders_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/{slug}/last-order": {
+      "get": {
+        "tags": [
+          "comprador (sem login)"
+        ],
+        "summary": "Last Order",
+        "description": "Repetir o último pedido: só responde se telefone E aparelho batem com o comprador.",
+        "operationId": "last_order_public__slug__last_order_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 30,
+              "title": "Phone"
+            }
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 100,
+              "title": "Device Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastOrder"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/{slug}/voice-order": {
+      "post": {
+        "tags": [
+          "comprador (sem login)"
+        ],
+        "summary": "Voice Order",
+        "description": "Áudio vira um RASCUNHO de carrinho. Nada é gravado até o comprador confirmar em POST /orders.",
+        "operationId": "voice_order_public__slug__voice_order_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_voice_order_public__slug__voice_order_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceOrderDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/producer": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Get Profile",
+        "operationId": "get_profile_producer_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Create Profile",
+        "operationId": "create_profile_producer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProducerIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Update Profile",
+        "operationId": "update_profile_producer_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProducerPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "List Products",
+        "operationId": "list_products_products_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Inactive"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductOut"
+                  },
+                  "title": "Response List Products Products Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Create Product",
+        "operationId": "create_product_products_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product_id}": {
+      "patch": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Update Product",
+        "operationId": "update_product_products__product_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Deactivate Product",
+        "description": "Desativa em vez de apagar: pedidos antigos continuam apontando para o produto.",
+        "operationId": "deactivate_product_products__product_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "List Orders",
+        "operationId": "list_orders_orders_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderOut"
+                  },
+                  "title": "Response List Orders Orders Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/accept": {
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Order Accept",
+        "operationId": "order_accept_orders__order_id__accept_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/reject": {
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Order Reject",
+        "operationId": "order_reject_orders__order_id__reject_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/deliver": {
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Order Deliver",
+        "operationId": "order_deliver_orders__order_id__deliver_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/cancel": {
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Order Cancel",
+        "operationId": "order_cancel_orders__order_id__cancel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/pay": {
+      "post": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Pay Order",
+        "operationId": "pay_order_orders__order_id__pay_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/harvest": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Harvest",
+        "operationId": "harvest_harvest_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HarvestOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/earnings": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Earnings",
+        "operationId": "earnings_earnings_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "AAAA-MM",
+              "title": "Month"
+            },
+            "description": "AAAA-MM"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EarningsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage": {
+      "get": {
+        "tags": [
+          "produtor (com login)"
+        ],
+        "summary": "Usage",
+        "operationId": "usage_usage_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "AAAA-MM",
+              "title": "Month"
+            },
+            "description": "AAAA-MM"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/catalog/voice": {
+      "post": {
+        "tags": [
+          "IA (produtor)"
+        ],
+        "summary": "Catalog From Voice",
+        "operationId": "catalog_from_voice_ai_catalog_voice_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_catalog_from_voice_ai_catalog_voice_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/ai/catalog/photo": {
+      "post": {
+        "tags": [
+          "IA (produtor)"
+        ],
+        "summary": "Catalog From Photo",
+        "operationId": "catalog_from_photo_ai_catalog_photo_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_catalog_from_photo_ai_catalog_photo_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/push/public-key": {
+      "get": {
+        "tags": [
+          "avisos (push)"
+        ],
+        "summary": "Public Key",
+        "description": "Chave pública VAPID, que o navegador precisa para se inscrever.",
+        "operationId": "public_key_push_public_key_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/push/subscribe": {
+      "post": {
+        "tags": [
+          "avisos (push)"
+        ],
+        "summary": "Subscribe",
+        "operationId": "subscribe_push_subscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSubscribeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_catalog_from_photo_ai_catalog_photo_post": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image"
+        ],
+        "title": "Body_catalog_from_photo_ai_catalog_photo_post"
+      },
+      "Body_catalog_from_voice_ai_catalog_voice_post": {
+        "properties": {
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "audio": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Audio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio"
+        ],
+        "title": "Body_catalog_from_voice_ai_catalog_voice_post"
+      },
+      "Body_voice_order_public__slug__voice_order_post": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "audio": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Audio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "audio"
+        ],
+        "title": "Body_voice_order_public__slug__voice_order_post"
+      },
+      "CatalogProposal": {
+        "properties": {
+          "transcript": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogProposalItem"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "unmatched": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unmatched"
+          }
+        },
+        "type": "object",
+        "required": [
+          "products",
+          "unmatched"
+        ],
+        "title": "CatalogProposal"
+      },
+      "CatalogProposalItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "maco",
+              "duzia",
+              "engradado",
+              "kg",
+              "unidade",
+              "caixa"
+            ],
+            "title": "Unit"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "price_missing": {
+            "type": "boolean",
+            "title": "Price Missing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "price",
+          "price_missing"
+        ],
+        "title": "CatalogProposalItem"
+      },
+      "DraftItem": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "quantity": {
+            "type": "number",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "number",
+            "title": "Unit Price"
+          },
+          "subtotal": {
+            "type": "number",
+            "title": "Subtotal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "unit",
+          "quantity",
+          "unit_price",
+          "subtotal"
+        ],
+        "title": "DraftItem"
+      },
+      "EarningsOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "orders_delivered": {
+            "type": "integer",
+            "title": "Orders Delivered"
+          },
+          "revenue": {
+            "type": "number",
+            "title": "Revenue"
+          },
+          "revenue_with_reference": {
+            "type": "number",
+            "title": "Revenue With Reference"
+          },
+          "estimated_intermediary_revenue": {
+            "type": "number",
+            "title": "Estimated Intermediary Revenue"
+          },
+          "extra_gain": {
+            "type": "number",
+            "title": "Extra Gain"
+          },
+          "coverage_pct": {
+            "type": "number",
+            "title": "Coverage Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "orders_delivered",
+          "revenue",
+          "revenue_with_reference",
+          "estimated_intermediary_revenue",
+          "extra_gain",
+          "coverage_pct"
+        ],
+        "title": "EarningsOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HarvestBuyerShare": {
+        "properties": {
+          "buyer_name": {
+            "type": "string",
+            "title": "Buyer Name"
+          },
+          "quantity": {
+            "type": "number",
+            "title": "Quantity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "buyer_name",
+          "quantity"
+        ],
+        "title": "HarvestBuyerShare"
+      },
+      "HarvestItem": {
+        "properties": {
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "total_quantity": {
+            "type": "number",
+            "title": "Total Quantity"
+          },
+          "buyers": {
+            "items": {
+              "$ref": "#/components/schemas/HarvestBuyerShare"
+            },
+            "type": "array",
+            "title": "Buyers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_name",
+          "unit",
+          "total_quantity",
+          "buyers"
+        ],
+        "title": "HarvestItem"
+      },
+      "HarvestOut": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HarvestItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "route": {
+            "items": {
+              "$ref": "#/components/schemas/RouteStop"
+            },
+            "type": "array",
+            "title": "Route"
+          },
+          "orders_accepted": {
+            "type": "integer",
+            "title": "Orders Accepted"
+          },
+          "orders_pending": {
+            "type": "integer",
+            "title": "Orders Pending"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "items",
+          "route",
+          "orders_accepted",
+          "orders_pending"
+        ],
+        "title": "HarvestOut"
+      },
+      "LastOrder": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LastOrderItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "LastOrder"
+      },
+      "LastOrderItem": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "quantity": {
+            "type": "number",
+            "title": "Quantity"
+          },
+          "still_available": {
+            "type": "boolean",
+            "title": "Still Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "unit",
+          "quantity",
+          "still_available"
+        ],
+        "title": "LastOrderItem"
+      },
+      "OrderIn": {
+        "properties": {
+          "buyer_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Buyer Name"
+          },
+          "buyer_phone": {
+            "type": "string",
+            "title": "Buyer Phone"
+          },
+          "device_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id"
+          },
+          "delivery_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Delivery Date"
+          },
+          "delivery_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Delivery Time"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemIn"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "minItems": 1,
+            "title": "Items"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "toque",
+              "voz"
+            ],
+            "title": "Source",
+            "default": "toque"
+          }
+        },
+        "type": "object",
+        "required": [
+          "buyer_name",
+          "buyer_phone",
+          "device_id",
+          "delivery_date",
+          "delivery_time",
+          "items"
+        ],
+        "title": "OrderIn"
+      },
+      "OrderItemIn": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "quantity"
+        ],
+        "title": "OrderItemIn"
+      },
+      "OrderItemOut": {
+        "properties": {
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "quantity": {
+            "type": "number",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "number",
+            "title": "Unit Price"
+          },
+          "subtotal": {
+            "type": "number",
+            "title": "Subtotal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_name",
+          "unit",
+          "quantity",
+          "unit_price",
+          "subtotal"
+        ],
+        "title": "OrderItemOut"
+      },
+      "OrderOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status"
+          },
+          "delivery_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Delivery Date"
+          },
+          "delivery_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Delivery Time"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "buyer_name": {
+            "type": "string",
+            "title": "Buyer Name"
+          },
+          "buyer_phone": {
+            "type": "string",
+            "title": "Buyer Phone"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "payment_status",
+          "delivery_date",
+          "delivery_time",
+          "total",
+          "notes",
+          "source",
+          "buyer_name",
+          "buyer_phone",
+          "items",
+          "created_at"
+        ],
+        "title": "OrderOut"
+      },
+      "ProducerIn": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,40}$",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "pix_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 140
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pix Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "title": "ProducerIn"
+      },
+      "ProducerOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "pix_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pix Key"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "phone",
+          "municipality",
+          "pix_key",
+          "active"
+        ],
+        "title": "ProducerOut"
+      },
+      "ProducerPatch": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "pix_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 140
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pix Key"
+          }
+        },
+        "type": "object",
+        "title": "ProducerPatch"
+      },
+      "ProductIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "maco",
+              "duzia",
+              "engradado",
+              "kg",
+              "unidade",
+              "caixa"
+            ],
+            "title": "Unit"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          },
+          "intermediary_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intermediary Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "price"
+        ],
+        "title": "ProductIn"
+      },
+      "ProductOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "intermediary_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intermediary Price"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "unit",
+          "price",
+          "intermediary_price",
+          "active"
+        ],
+        "title": "ProductOut"
+      },
+      "ProductPatch": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "maco",
+                  "duzia",
+                  "engradado",
+                  "kg",
+                  "unidade",
+                  "caixa"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "intermediary_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intermediary Price"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "title": "ProductPatch"
+      },
+      "PublicCatalog": {
+        "properties": {
+          "producer_name": {
+            "type": "string",
+            "title": "Producer Name"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "pix_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pix Key"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductOut"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "producer_name",
+          "municipality",
+          "pix_key",
+          "products"
+        ],
+        "title": "PublicCatalog"
+      },
+      "PublicOrderOut": {
+        "properties": {
+          "tracking_token": {
+            "type": "string",
+            "title": "Tracking Token"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status"
+          },
+          "delivery_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Delivery Date"
+          },
+          "delivery_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Delivery Time"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "producer_name": {
+            "type": "string",
+            "title": "Producer Name"
+          },
+          "pix_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pix Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tracking_token",
+          "status",
+          "payment_status",
+          "delivery_date",
+          "delivery_time",
+          "total",
+          "items",
+          "producer_name",
+          "pix_key"
+        ],
+        "title": "PublicOrderOut"
+      },
+      "PushKeys": {
+        "properties": {
+          "p256dh": {
+            "type": "string",
+            "title": "P256Dh"
+          },
+          "auth": {
+            "type": "string",
+            "title": "Auth"
+          }
+        },
+        "type": "object",
+        "required": [
+          "p256dh",
+          "auth"
+        ],
+        "title": "PushKeys"
+      },
+      "PushSubscribeIn": {
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 10,
+            "title": "Endpoint"
+          },
+          "keys": {
+            "$ref": "#/components/schemas/PushKeys"
+          }
+        },
+        "type": "object",
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "title": "PushSubscribeIn"
+      },
+      "RouteStop": {
+        "properties": {
+          "delivery_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Delivery Time"
+          },
+          "order_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Order Id"
+          },
+          "buyer_name": {
+            "type": "string",
+            "title": "Buyer Name"
+          },
+          "buyer_phone": {
+            "type": "string",
+            "title": "Buyer Phone"
+          },
+          "items_count": {
+            "type": "integer",
+            "title": "Items Count"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delivery_time",
+          "order_id",
+          "buyer_name",
+          "buyer_phone",
+          "items_count",
+          "total",
+          "payment_status",
+          "notes"
+        ],
+        "title": "RouteStop"
+      },
+      "UsageOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "events": {
+            "type": "integer",
+            "title": "Events"
+          },
+          "cost_brl_total": {
+            "type": "number",
+            "title": "Cost Brl Total"
+          },
+          "cost_brl_llm": {
+            "type": "number",
+            "title": "Cost Brl Llm"
+          },
+          "cost_brl_transcription": {
+            "type": "number",
+            "title": "Cost Brl Transcription"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "events",
+          "cost_brl_total",
+          "cost_brl_llm",
+          "cost_brl_transcription"
+        ],
+        "title": "UsageOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoiceOrderDraft": {
+        "properties": {
+          "transcript": {
+            "type": "string",
+            "title": "Transcript"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DraftItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "unmatched": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unmatched"
+          },
+          "delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Date"
+          },
+          "delivery_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Time"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total"
+          },
+          "needs_confirmation": {
+            "type": "boolean",
+            "title": "Needs Confirmation",
+            "default": true
+          },
+          "source": {
+            "type": "string",
+            "const": "voz",
+            "title": "Source",
+            "default": "voz"
+          }
+        },
+        "type": "object",
+        "required": [
+          "transcript",
+          "items",
+          "unmatched",
+          "delivery_date",
+          "delivery_time",
+          "total"
+        ],
+        "title": "VoiceOrderDraft"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

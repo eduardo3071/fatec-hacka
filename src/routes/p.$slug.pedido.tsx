@@ -25,6 +25,7 @@ import {
   type DeliveryPrefs,
 } from "@/lib/buyer";
 import { formatDate, formatMoney, formatQty } from "@/lib/format";
+import { apiEnabled, getDeviceId, publicApi, showApiError } from "@/lib/api";
 
 const parent = getRouteApi("/p/$slug");
 
@@ -47,7 +48,8 @@ const label = "text-[15px] font-semibold text-ink";
 function Checkout() {
   const { producer } = parent.useLoaderData();
   const { slug } = parent.useParams();
-  const { cart, hydrated, setQty, clear } = useCart();
+  const { cart, hydrated, setQty, clear, products } = useCart();
+  const [source, setSource] = useState<"toque" | "voz">("toque");
   const navigate = useNavigate();
 
   const [day, setDay] = useState<DeliveryPrefs["day"]>("amanha");
@@ -71,21 +73,50 @@ function Checkout() {
       setDay(p.day);
       if (p.date) setCustomDate(p.date);
       if (p.time) setTime(p.time);
+      if (p.source) setSource(p.source);
     }
   }, [slug]);
 
-  const lines = cartLines(cart);
-  const total = cartTotal(cart);
+  const lines = cartLines(cart, products);
+  const total = cartTotal(cart, products);
   const date = day === "hoje" ? isoDay(0) : day === "amanha" ? isoDay(1) : customDate;
   const nameOk = name.trim().length >= 2;
   const phoneOk = isValidPhone(phone);
 
-  function confirm() {
+  function celebrateThen(token: string) {
+    storage.setLastCart(slug, cart);
+    setCelebrate(true);
+    window.setTimeout(() => {
+      clear();
+      navigate({ to: "/pedido/$token", params: { token } });
+    }, 1600);
+  }
+
+  async function confirm() {
     setTried(true);
     if (!nameOk || !phoneOk || lines.length === 0) return;
     setSending(true);
     storage.setBuyer({ name: name.trim(), phone });
     storage.setPrefs(slug, { day, date: customDate, time });
+    if (apiEnabled) {
+      try {
+        const res = await publicApi.createOrder(slug, {
+          buyer_name: name.trim(),
+          buyer_phone: phone,
+          device_id: getDeviceId(),
+          delivery_date: date,
+          delivery_time: time,
+          items: lines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
+          notes: notes.trim() || null,
+          source,
+        });
+        celebrateThen(res.tracking_token);
+      } catch (e) {
+        showApiError(e);
+        setSending(false);
+      }
+      return;
+    }
     const token = newToken();
     window.setTimeout(() => {
       storage.saveOrder({
@@ -101,12 +132,7 @@ function Checkout() {
         status: "pending",
         createdAt: new Date().toISOString(),
       });
-      storage.setLastCart(slug, cart);
-      setCelebrate(true);
-      window.setTimeout(() => {
-        clear();
-        navigate({ to: "/pedido/$token", params: { token } });
-      }, 1600);
+      celebrateThen(token);
     }, 900);
   }
 

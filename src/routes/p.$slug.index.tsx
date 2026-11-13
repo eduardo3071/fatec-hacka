@@ -11,7 +11,7 @@ import { Stepper } from "@/components/stepper";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
 import { cartCount, cartTotal, itemsLabel, storage, type CartLine } from "@/lib/buyer";
-import { PRODUCTS } from "@/lib/mock";
+import { apiEnabled, getDeviceId, publicApi, showApiError } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -27,21 +27,47 @@ export const Route = createFileRoute("/p/$slug/")({
 function Storefront() {
   const { producer } = parent.useLoaderData();
   const { slug } = parent.useParams();
-  const { cart, setQty, replace } = useCart();
+  const { cart, setQty, replace, products: PRODUCTS } = useCart();
   const navigate = useNavigate();
   const [voiceOpen, setVoiceOpen] = useState(false);
+  const [repeating, setRepeating] = useState(false);
+  const [unavailable, setUnavailable] = useState<string[]>([]);
 
-  const count = cartCount(cart);
-  const total = cartTotal(cart);
+  const count = cartCount(cart, PRODUCTS);
+  const total = cartTotal(cart, PRODUCTS);
 
-  function repeatLast() {
-    replace(storage.getLastCart(slug));
-    toast.success("Último pedido no carrinho. Ajuste se quiser.");
+  async function repeatLast() {
+    if (!apiEnabled) {
+      replace(storage.getLastCart(slug));
+      toast.success("Último pedido no carrinho. Ajuste se quiser.");
+      return;
+    }
+    const buyer = storage.getBuyer();
+    if (!buyer) {
+      toast("Ainda não achei pedido seu neste celular. Escolha no catálogo abaixo.");
+      return;
+    }
+    setRepeating(true);
+    try {
+      const last = await publicApi.lastOrder(slug, buyer.phone, getDeviceId());
+      const ok = last.items.filter((i) => i.still_available);
+      setUnavailable(last.items.filter((i) => !i.still_available).map((i) => i.product_name));
+      if (ok.length === 0) {
+        toast("Nada do último pedido está disponível agora. Escolha no catálogo.");
+        return;
+      }
+      replace(Object.fromEntries(ok.map((i) => [i.product_id, i.quantity])));
+      toast.success("Último pedido no carrinho. Ajuste se quiser.");
+    } catch (e) {
+      showApiError(e);
+    } finally {
+      setRepeating(false);
+    }
   }
 
-  function fromVoice(lines: CartLine[], time: string) {
+  function fromVoice(lines: CartLine[], time: string, date?: string) {
     replace(Object.fromEntries(lines.map((l) => [l.product.id, l.quantity])));
-    storage.setPrefs(slug, { day: "amanha", time });
+    storage.setPrefs(slug, date ? { day: "data", date, time, source: "voz" } : { day: "amanha", time, source: "voz" });
     setVoiceOpen(false);
     navigate({ to: "/p/$slug/pedido", params: { slug } });
   }
@@ -50,7 +76,7 @@ function Storefront() {
     <div className="pb-32">
       <ProducerHeader producer={producer}>
         <div className="flex items-center gap-3">
-          <Button variant="amber" size="lg" className="h-auto min-h-14 min-w-0 flex-1 whitespace-normal px-4 py-2 leading-tight" onClick={repeatLast}>
+          <Button variant="amber" size="lg" className="h-auto min-h-14 min-w-0 flex-1 whitespace-normal px-4 py-2 leading-tight" onClick={repeatLast} isLoading={repeating}>
             <RotateCcw /> Repetir meu último pedido
           </Button>
           <button
@@ -66,6 +92,20 @@ function Storefront() {
       </ProducerHeader>
 
       <main className="px-4 pt-6">
+        {unavailable.length > 0 ? (
+          <div className="mb-4 rounded-3xl border-2 border-dashed border-line p-4">
+            <p className="text-base font-semibold text-muted-text">Do último pedido, sem colheita agora:</p>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {unavailable.map((n) => (
+                <li key={n}>
+                  <button type="button" disabled aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center rounded-full border-2 border-line bg-sand px-4 text-base text-muted-text line-through">
+                    {n}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <h2 className="px-2 font-display text-2xl font-bold text-forest">Colhido para amanhã</h2>
         <ul className="mt-4 flex flex-col gap-3">
           {PRODUCTS.length === 0 ? (

@@ -45,14 +45,25 @@ function Money({ value, onCommit, label }: { value: number | null; onCommit: (v:
 }
 
 function Products() {
-  const { state, update } = usePanel();
+  const { state, update, live, actions } = usePanel();
   const [adding, setAdding] = useState(false);
 
   function patch(id: string, p: Partial<PanelProduct>) {
+    if (live) {
+      void actions.patchProduct(id, p);
+      return;
+    }
     update((s) => ({ ...s, products: s.products.map((x) => (x.id === id ? { ...x, ...p } : x)) }));
   }
 
-  function add(items: Proposal[]) {
+  async function add(items: Proposal[]) {
+    if (live) {
+      if (await actions.addProducts(items)) {
+        setAdding(false);
+        toast.success(items.length === 1 ? "Produto adicionado." : `${items.length} produtos adicionados.`);
+      }
+      return;
+    }
     update((s) => ({
       ...s,
       products: [
