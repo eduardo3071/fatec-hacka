@@ -20,7 +20,7 @@ export default defineConfig({
       // Pre-bundle these at server start: they only appear in the graph after a lazy
       // import or the root Toaster, and a mid-session re-optimization leaves an open tab
       // holding two React copies ("Cannot read properties of null (reading 'useContext')").
-      include: ["vaul", "sonner"],
+      include: ["vaul", "sonner", "qrcode.react"],
     },
   },
 });
