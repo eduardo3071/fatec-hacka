@@ -8,6 +8,7 @@
 // hosting already compresses at the edge.
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   tanstackStart: {
@@ -16,6 +17,42 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [
+      VitePWA({
+        strategies: "generateSW",
+        filename: "sw.js",
+        registerType: "autoUpdate",
+        injectRegister: null, // src/lib/pwa.ts is the only registrar
+        manifest: false, // public/manifest.webmanifest is hand-written
+        devOptions: { enabled: false },
+        workbox: {
+          navigateFallback: null,
+          globPatterns: ["**/*.{js,css,png,svg,webmanifest}"],
+          cleanupOutdatedCaches: true,
+          runtimeCaching: [
+            {
+              // Pages: always try the network; offline, serve the last copy seen.
+              urlPattern: ({ request, url }) =>
+                request.mode === "navigate" && !url.pathname.startsWith("/~oauth"),
+              handler: "NetworkFirst",
+              options: { cacheName: "cc-pages", networkTimeoutSeconds: 4 },
+            },
+            {
+              urlPattern: ({ url }) =>
+                url.origin === self.location.origin && url.pathname.startsWith("/assets/"),
+              handler: "CacheFirst",
+              options: { cacheName: "cc-assets", expiration: { maxEntries: 200 } },
+            },
+            {
+              urlPattern: ({ url }) =>
+                url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com",
+              handler: "StaleWhileRevalidate",
+              options: { cacheName: "cc-fonts", expiration: { maxEntries: 20 } },
+            },
+          ],
+        },
+      }),
+    ],
     optimizeDeps: {
       // Pre-bundle these at server start: they only appear in the graph after a lazy
       // import or the root Toaster, and a mid-session re-optimization leaves an open tab
