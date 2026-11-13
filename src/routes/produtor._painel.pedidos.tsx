@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, X, Check, CalendarClock, Inbox, StickyNote } from "lucide-react";
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/produtor/_painel/pedidos")({
     ],
   }),
   component: Orders,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function summary(o: PanelOrder, products: PanelProduct[]) {

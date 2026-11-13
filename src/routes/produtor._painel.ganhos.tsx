@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/produtor/_painel/ganhos")({
     ],
   }),
   component: Earnings,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" });

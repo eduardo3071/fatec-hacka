@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useState } from "react";
 import { Mic, RotateCcw, ShoppingBasket, ArrowRight } from "lucide-react";
@@ -18,6 +19,8 @@ const parent = getRouteApi("/p/$slug");
 
 export const Route = createFileRoute("/p/$slug/")({
   component: Storefront,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function Storefront() {

@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Phone, Truck, Wallet, MapPinned, Check } from "lucide-react";
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/produtor/_painel/rota")({
     ],
   }),
   component: RoutePage,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function RoutePage() {
