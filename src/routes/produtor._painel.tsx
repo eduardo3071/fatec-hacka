@@ -9,6 +9,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InstallBanner } from "@/components/pwa/install-banner";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
+import { Splash } from "@/components/pwa/splash";
 import { usePanel } from "@/lib/panel-context";
 import { DEMO_PROFILE } from "@/lib/producer";
 import { cn } from "@/lib/utils";
@@ -46,6 +49,7 @@ function PanelShell() {
 
   return (
     <div className="min-h-screen bg-cream md:flex">
+      <Splash />
       {/* Desktop side menu */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-2 bg-forest px-4 py-6 md:flex">
         <Logo variant="light" size={36} className="px-2" />
@@ -54,7 +58,7 @@ function PanelShell() {
             <Link
               key={t.to}
               to={t.to}
-              className="flex min-h-12 items-center gap-3 rounded-full px-4 text-lg font-semibold text-cream/85 hover:bg-forest-2"
+              className="flex min-h-12 items-center gap-3 rounded-full px-4 text-lg font-semibold text-cream hover:bg-forest-2"
               activeProps={{ className: "bg-forest-2 text-cream" }}
             >
               <t.icon className="size-5" />
@@ -89,6 +93,10 @@ function PanelShell() {
         </header>
 
         <main className="mx-auto w-full max-w-2xl px-4 pb-32 pt-6 md:pb-12 md:pt-10">
+          <div className="mb-6 flex flex-col gap-4 empty:hidden">
+            <OfflineBanner />
+            <InstallBanner />
+          </div>
           <Outlet />
         </main>
 

@@ -12,27 +12,24 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { setupServiceWorker } from "../lib/pwa";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+    <main className="flex min-h-screen items-center justify-center bg-cream px-6">
+      <div className="max-w-sm text-center">
+        <p className="font-display text-7xl font-bold text-forest">404</p>
+        <h1 className="mt-4 font-display text-2xl font-bold text-forest">Página não encontrada</h1>
+        <p className="mt-2 text-base text-muted-text">Esse endereço não existe ou mudou de lugar.</p>
+        <Link
+          to="/"
+          className="mt-8 inline-flex min-h-13 items-center justify-center rounded-full bg-leaf-dark px-6 text-base font-semibold text-cream"
+        >
+          Voltar ao início
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -44,41 +41,30 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+    <main className="flex min-h-screen items-center justify-center bg-cream px-6">
+      <div className="max-w-sm text-center">
+        <h1 className="font-display text-2xl font-bold text-forest">Algo não carregou</h1>
+        <p className="mt-2 text-base text-muted-text">Foi um problema do nosso lado. Tente de novo em instantes.</p>
+        <div className="mt-8 flex flex-col gap-3">
           <button
+            type="button"
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-13 cursor-pointer items-center justify-center rounded-full bg-leaf-dark px-6 text-base font-semibold text-cream"
           >
-            Try again
-          </button>
-          <button
-            onClick={() => {
-              window.location.reload();
-            }}
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Reload page
+            Tentar de novo
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex min-h-13 items-center justify-center rounded-full border-2 border-forest px-6 text-base font-semibold text-forest"
           >
-            Go home
+            Voltar ao início
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -104,14 +90,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#14301F" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Colheita Certa" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
@@ -146,6 +139,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    void setupServiceWorker();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

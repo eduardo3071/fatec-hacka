@@ -64,7 +64,7 @@ export function InstallBanner() {
         <div className="min-w-0 flex-1">
           <p className="font-display text-xl font-bold">Instale o Colheita Certa</p>
           <p className="mt-1 text-base text-cream/90">Abre com um toque e avisa quando chegar pedido novo.</p>
-          <Button variant="accent" className="mt-4" onClick={install}>
+          <Button variant="amber" className="mt-4" onClick={install}>
             <Download /> {ios ? "Ver como instalar" : "Instalar app"}
           </Button>
         </div>
