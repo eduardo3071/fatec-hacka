@@ -381,7 +381,7 @@ function DesignPage() {
         </div>
 
         <div className="border-t-2 border-line pt-8">
-          <Link to="/" className="text-base font-semibold text-leaf-dark underline">
+          <Link to="/" className="inline-flex min-h-12 items-center text-base font-semibold text-leaf-dark underline">
             Voltar para a abertura
           </Link>
         </div>

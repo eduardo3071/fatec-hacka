@@ -63,8 +63,10 @@ function Earnings() {
             <div className="h-full rounded-full bg-leaf transition-[width] duration-500" style={{ width: `${pct}%` }} />
           </div>
           <p className="mt-2 text-base text-muted-text">
-            Calculado sobre <strong className="text-ink">{pct}%</strong> das suas vendas: os produtos em que você informou o preço do atravessador.{" "}
-            <Link to="/produtor/produtos" className="font-semibold text-leaf-dark underline underline-offset-4">Informar mais</Link>
+            Calculado sobre <strong className="text-ink">{pct}%</strong> das suas vendas: os produtos em que você informou o preço do atravessador.
+          </p>
+          <p>
+            <Link to="/produtor/produtos" className="mt-1 inline-flex min-h-12 items-center text-base font-semibold text-leaf-dark underline underline-offset-4">Informar mais preços</Link>
           </p>
         </div>
       </section>

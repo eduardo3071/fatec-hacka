@@ -87,7 +87,7 @@ function Products() {
                 <p className="font-display text-xl font-bold text-ink">{p.name}</p>
                 <p className="text-[15px] font-semibold text-muted-text">{p.active ? "À venda" : "Fora da vitrine"}</p>
               </div>
-              <Switch checked={p.active} onCheckedChange={(v) => patch(p.id, { active: v })} aria-label={`${p.name} à venda`} className="scale-125" />
+              <Switch checked={p.active} onCheckedChange={(v) => patch(p.id, { active: v })} aria-label={`${p.name} à venda`} className="relative scale-125 after:absolute after:-inset-3 after:content-['']" />
             </div>
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Unidade">
               {UNITS.map((u) => (

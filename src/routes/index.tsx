@@ -93,7 +93,7 @@ function Index() {
       <footer className="mx-auto w-full max-w-md px-6 pb-8">
         <Link
           to="/design"
-          className="inline-flex items-center gap-2 text-base font-semibold text-cream underline underline-offset-4"
+          className="inline-flex min-h-12 items-center gap-2 text-base font-semibold text-cream underline underline-offset-4"
         >
           Ver a base visual
           <ArrowRight className="size-4" />
