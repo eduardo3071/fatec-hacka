@@ -142,7 +142,7 @@ function Tracking() {
             description={apiEnabled ? "Confira o link que você recebeu ao fazer o pedido." : "Abra o link no mesmo celular em que você fez o pedido."}
             action={
               <Button asChild>
-                <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>Fazer um pedido</Link>
+                <Link to="/">Voltar ao início</Link>
               </Button>
             }
           />
