@@ -79,17 +79,17 @@ function Index() {
           <Button
             asChild
             size="lg"
-            className="h-20 min-h-20 w-full justify-between rounded-3xl border-2 border-cream/35 bg-forest-2 px-6 text-left text-cream hover:border-cream/70 hover:bg-forest-2"
+            className="h-20 min-h-20 w-full justify-between rounded-3xl border-2 border-cream/35 bg-forest-2 px-6 text-left whitespace-normal text-cream hover:border-cream/70 hover:bg-forest-2"
           >
             <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>
-              <span className="flex items-center gap-4">
+              <span className="flex min-w-0 items-center gap-4">
                 <span
                   aria-hidden="true"
-                  className="inline-flex size-12 items-center justify-center rounded-2xl bg-cream/10"
+                  className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-cream/10"
                 >
                   <ShoppingBasket className="size-7 text-cream" />
                 </span>
-                <span className="flex flex-col">
+                <span className="flex min-w-0 flex-col">
                   <span className="font-display text-xl leading-tight font-bold">
                     Sou comprador
                   </span>
