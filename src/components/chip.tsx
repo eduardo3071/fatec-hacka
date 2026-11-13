@@ -12,7 +12,7 @@ export function Chip({
   return (
     <button
       type="button"
-      aria-pressed={selected}
+      aria-pressed={props.role === "tab" || props.role === "radio" ? undefined : selected}
       className={cn(
         "inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full border-2 px-5 text-base font-semibold transition-[background-color,color,transform] duration-150 active:translate-y-[1px] active:scale-[0.985] disabled:pointer-events-none disabled:opacity-50",
         selected
