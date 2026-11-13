@@ -33,6 +33,7 @@ use the editor.
 
 - All colors, fonts, radii and shadows come from the tokens in `src/styles.css`; components use semantic token classes, never raw hex or one-off color utilities. Why: the palette is a brand contract and must stay themeable in light and dark.
 - Browser-only libraries (vaul/drawer, map/leaflet-style) are lazy-loaded and rendered only after hydration, never imported at module scope of an SSR route. Why: they touch `document` during server render and break the page.
-- The buyer flow (`/p/$slug`, `/pedido/$token`) runs only on sample data plus browser storage via `src/lib/buyer.ts`; no network calls. Why: it is a visual prototype until the API exists, and swapping storage for API calls should touch one module.
-- The producer panel (`/produtor/*`) keeps sample data in device storage through `src/lib/producer.ts` + `PanelProvider`, and its layout sets `ssr: false`. Why: no login or API yet; calculations (harvest, route, earnings) stay pure so they can move server-side unchanged.
 - The service worker comes only from vite-plugin-pwa (generateSW, NetworkFirst pages) and is registered only by `src/lib/pwa.ts`, which refuses dev/preview/iframes; the manifest is hand-written in `public/`. Why: a stray worker in preview serves stale code.
+
+- All API calls go through `src/lib/api` (types generated from `docs/openapi.json` into `schema.ts`); screens keep their own shapes via `src/lib/buyer.ts` and `src/lib/panel-sync.ts`. When `VITE_API_URL` is empty the buyer flow and producer panel fall back to sample data in device storage. Why: the API may not be deployed yet, and swapping data sources must not touch screens.
+- The producer panel layout sets `ssr: false` and `PanelProvider` owns loading, auth phase, realtime and mutations. Why: the session and offline cache live in browser storage.
