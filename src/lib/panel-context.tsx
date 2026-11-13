@@ -184,7 +184,7 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
       },
       async addProducts(items) {
         try {
-          const created = [];
+          const created: PanelProduct[] = [];
           for (const it of items) {
             created.push(
               mapProduct(
