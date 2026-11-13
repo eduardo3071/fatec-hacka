@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute } from "@tanstack/react-router";
 import { Copy, MessageCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/produtor/_painel/link")({
     ],
   }),
   component: MyLink,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function MyLink() {

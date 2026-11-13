@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, X, Check, CalendarClock, Inbox, StickyNote } from "lucide-react";
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/produtor/_painel/pedidos")({
     ],
   }),
   component: Orders,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function summary(o: PanelOrder, products: PanelProduct[]) {
@@ -111,15 +114,18 @@ function Orders() {
   }
 
   async function askNotify() {
+    let result: NotificationPermission | "unsupported" = "unsupported";
     if ("Notification" in window) {
       try {
-        await Notification.requestPermission();
+        result = await Notification.requestPermission();
       } catch {
         /* ignore */
       }
     }
     update((s) => ({ ...s, notifyAsked: true }));
-    toast.success("Pronto! Você será avisado de novo pedido.");
+    if (result === "granted") toast.success("Pronto! Você será avisado de novo pedido.");
+    else if (result === "denied") toast("Avisos desligados. Dá para ligar depois nos ajustes do celular.");
+    else toast("Este celular só avisa com o app instalado na tela de início.");
   }
 
   return (
@@ -130,7 +136,12 @@ function Orders() {
         <div className="mb-5 flex items-start gap-3 rounded-3xl bg-sand p-4">
           <Bell className="mt-1 size-6 shrink-0 text-leaf-dark" />
           <div className="flex-1">
-            <p className="text-base text-ink">Quer saber na hora quando chegar pedido, mesmo com o app fechado?</p>
+            <p className="font-display text-xl font-bold text-forest">Saiba na hora do pedido novo</p>
+            <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-base text-ink">
+              <li>Você responde rápido e o comprador não procura outro.</li>
+              <li>Avisa mesmo com o app fechado, lá no campo.</li>
+              <li>Só pedidos. Nada de propaganda.</li>
+            </ul>
             <Button className="mt-3 h-auto min-h-12 whitespace-normal py-2 text-left" onClick={askNotify}>Quero ser avisado de novo pedido</Button>
           </div>
           <button

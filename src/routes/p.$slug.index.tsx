@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useState } from "react";
 import { Mic, RotateCcw, ShoppingBasket, ArrowRight } from "lucide-react";
@@ -18,6 +20,8 @@ const parent = getRouteApi("/p/$slug");
 
 export const Route = createFileRoute("/p/$slug/")({
   component: Storefront,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function Storefront() {
@@ -64,6 +68,11 @@ function Storefront() {
       <main className="px-4 pt-6">
         <h2 className="px-2 font-display text-2xl font-bold text-forest">Colhido para amanhã</h2>
         <ul className="mt-4 flex flex-col gap-3">
+          {PRODUCTS.length === 0 ? (
+            <li>
+              <EmptyState icon={ShoppingBasket} title="Nada colhido para amanhã." description="Volte mais tarde ou fale com o produtor." />
+            </li>
+          ) : null}
           {PRODUCTS.map((p, i) => {
             const qty = cart[p.id] ?? 0;
             return (

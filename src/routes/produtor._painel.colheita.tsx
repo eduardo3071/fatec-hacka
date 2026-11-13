@@ -1,3 +1,4 @@
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AlertTriangle, Check, ChevronDown, Share2, Sprout } from "lucide-react";
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/produtor/_painel/colheita")({
     ],
   }),
   component: Harvest,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 function Harvest() {

@@ -1,3 +1,6 @@
+import { Package } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton, RouteListError } from "@/components/list-states";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
@@ -25,6 +28,8 @@ export const Route = createFileRoute("/produtor/_painel/produtos")({
     ],
   }),
   component: Products,
+  errorComponent: RouteListError,
+  pendingComponent: () => <ListSkeleton />,
 });
 
 const field = "h-13 rounded-2xl border-2 border-line bg-cream text-lg tabular-nums pl-12";
@@ -79,15 +84,18 @@ function Products() {
       )}
 
       <ul className="flex flex-col gap-4">
+        {state.products.length === 0 ? (
+          <li><EmptyState icon={Package} title="Nenhum produto ainda." description="Adicione falando, por foto ou um a um." /></li>
+        ) : null}
         {state.products.map((p) => (
           <li key={p.id} className={cn("flex flex-col gap-4 rounded-3xl border-2 bg-paper p-5 transition-opacity", p.active ? "border-line" : "border-dashed border-line opacity-70")}>
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="text-4xl">{p.glyph}</span>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-xl font-bold text-ink">{p.name}</p>
-                <p className="text-[15px] font-semibold text-muted-text">{p.active ? "À venda" : "Fora da vitrine"}</p>
+                <p className="text-base font-semibold text-muted-text">{p.active ? "À venda" : "Fora da vitrine"}</p>
               </div>
-              <Switch checked={p.active} onCheckedChange={(v) => patch(p.id, { active: v })} aria-label={`${p.name} à venda`} className="scale-125" />
+              <Switch checked={p.active} onCheckedChange={(v) => patch(p.id, { active: v })} aria-label={`${p.name} à venda`} className="relative scale-125 after:absolute after:-inset-3 after:content-['']" />
             </div>
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Unidade">
               {UNITS.map((u) => (
