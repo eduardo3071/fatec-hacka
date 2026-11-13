@@ -43,7 +43,7 @@ function Index() {
           <h1 className="mt-6 font-display text-4xl leading-tight font-bold text-cream">
             Como você quer entrar?
           </h1>
-          <p className="mt-3 text-lg text-cream/80">
+          <p className="mt-3 text-lg text-cream/90">
             Toque em uma opção para continuar.
           </p>
         </div>
@@ -93,7 +93,7 @@ function Index() {
                   <span className="font-display text-xl leading-tight font-bold">
                     Sou comprador
                   </span>
-                  <span className="text-[15px] font-medium text-cream/75">
+                  <span className="text-[15px] font-medium text-cream/85">
                     Pedir por toque ou por voz
                   </span>
                 </span>
