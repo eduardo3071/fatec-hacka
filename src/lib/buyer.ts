@@ -176,6 +176,7 @@ export interface DeliveryPrefs {
   day: "hoje" | "amanha" | "data";
   date?: string;
   time?: string;
+  source?: "toque" | "voz";
 }
 
 const K = {
