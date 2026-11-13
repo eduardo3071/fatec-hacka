@@ -1,4 +1,5 @@
 import * as React from "react";
+import { toast } from "sonner";
 import { Mic, Camera, Plus, Square, Loader2, Trash2, AlertCircle, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -113,7 +114,7 @@ export function CatalogCapture({ onConfirm, confirmLabel = "Confirmar produtos" 
       try {
         await recorder.start();
       } catch {
-        showApiError(new Error("mic"));
+        toast.error("Não consegui usar o microfone. Libere o acesso nas permissões do navegador.");
         return;
       }
     }
