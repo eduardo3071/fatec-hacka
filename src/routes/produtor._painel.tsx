@@ -1,7 +1,8 @@
-import { createFileRoute, Link, Navigate, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { PanelPending } from "@/components/list-states";
 import { useEffect } from "react";
-import { ClipboardList, Sprout, Route as RouteIcon, TrendingUp, Menu, Link2, Package } from "lucide-react";
+import { ClipboardList, Sprout, Route as RouteIcon, TrendingUp, Menu, Link2, Package, LogOut } from "lucide-react";
 
 import { Logo } from "@/components/logo";
 import {
@@ -35,6 +36,7 @@ const EXTRA = [
 
 function PanelShell() {
   const { state, update, live, phase } = usePanel();
+  const navigate = useNavigate();
   const newCount = state.orders.filter((o) => o.status === "pendente").length;
 
   // Opening the panel directly (demo) without signup: fill in Marcos.
@@ -47,6 +49,11 @@ function PanelShell() {
       {newCount}
     </span>
   ) : null;
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/produtor/entrar", replace: true });
+  }
 
   if (live && phase === "signed-out") return <Navigate to="/produtor/entrar" replace />;
   if (live && phase === "no-profile") return <Navigate to="/produtor/cadastro" replace />;
@@ -72,6 +79,11 @@ function PanelShell() {
             </Link>
           ))}
         </nav>
+        {live ? (
+          <button type="button" onClick={() => void signOut()} className="mt-auto flex min-h-12 cursor-pointer items-center gap-3 rounded-full px-4 text-lg font-semibold text-cream hover:bg-forest-2">
+            <LogOut className="size-5" /> Sair
+          </button>
+        ) : null}
       </aside>
 
       <div className="min-w-0 flex-1">
@@ -93,6 +105,11 @@ function PanelShell() {
                   </Link>
                 </DropdownMenuItem>
               ))}
+              {live ? (
+                <DropdownMenuItem className="min-h-12 rounded-xl text-lg text-ink" onSelect={() => void signOut()}>
+                  <LogOut className="size-5" /> Sair
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
