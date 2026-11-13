@@ -31,6 +31,8 @@ export interface PanelOrder {
   paid: boolean;
   notes?: string;
   isNew?: boolean;
+  /** Total as charged (API); falls back to current prices when absent. */
+  total?: number;
 }
 
 export interface Profile {
@@ -132,6 +134,7 @@ export const DEMO_PROFILE: Profile = {
 
 // ---------- Calculations ----------
 export function orderTotal(order: PanelOrder, products: PanelProduct[]): number {
+  if (order.total != null) return order.total;
   return order.items.reduce((s, it) => {
     const p = products.find((x) => x.id === it.productId);
     return s + (p ? p.price * it.quantity : 0);
