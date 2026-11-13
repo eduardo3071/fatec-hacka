@@ -333,7 +333,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      owned_producer_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       [_ in never]: never
