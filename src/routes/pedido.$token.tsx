@@ -12,7 +12,8 @@ import { Chip } from "@/components/chip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { findProducer, findProduct, storage, type PlacedOrder, type TrackStatus } from "@/lib/buyer";
+import { localTrackView, storage, trackStatus, type TrackStatus, type TrackView } from "@/lib/buyer";
+import { ApiError, apiEnabled, apiMessage, glyphFor, hhmm, publicApi, unitFromApi } from "@/lib/api";
 import { formatDate, formatMoney, formatQty } from "@/lib/format";
 
 export const Route = createFileRoute("/pedido/$token")({
@@ -63,25 +64,71 @@ function steps(status: TrackStatus, producerName: string): TimelineStep[] {
 
 function Tracking() {
   const { token } = Route.useParams();
-  const [order, setOrder] = useState<PlacedOrder | null | undefined>(undefined);
+  const [order, setOrder] = useState<TrackView | null | undefined>(undefined);
+  const [stale, setStale] = useState<string | null>(null);
 
   useEffect(() => {
-    setOrder(storage.getOrder(token) ?? null);
+    if (!apiEnabled) {
+      const local = storage.getOrder(token);
+      setOrder(local ? localTrackView(local) : null);
+      return;
+    }
+    let alive = true;
+    async function load() {
+      try {
+        const o = await publicApi.order(token);
+        if (!alive) return;
+        setStale(null);
+        setOrder({
+          status: trackStatus(o.status, o.payment_status),
+          producerName: o.producer_name,
+          producerSlug: null,
+          pixKey: o.pix_key ?? "",
+          total: o.total,
+          deliveryDate: o.delivery_date,
+          deliveryTime: hhmm(o.delivery_time),
+          items: o.items.map((it, i) => ({
+            key: `${i}-${it.product_name}`,
+            label: `${glyphFor(it.product_name)} ${it.product_name}`,
+            quantity: it.quantity,
+            unit: unitFromApi(it.unit),
+            subtotal: it.subtotal,
+          })),
+          cart: null,
+        });
+      } catch (e) {
+        if (!alive) return;
+        if (e instanceof ApiError && e.status === 404) setOrder(null);
+        else {
+          setStale(apiMessage(e));
+          setOrder((prev) => (prev === undefined ? null : prev));
+        }
+      }
+    }
+    void load();
+    const id = window.setInterval(load, 20000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
   }, [token]);
 
   function setStatus(status: TrackStatus) {
-    if (!order) return;
-    const next = { ...order, status };
-    storage.saveOrder(next);
-    setOrder(next);
+    const local = storage.getOrder(token);
+    if (!local) return;
+    storage.saveOrder({ ...local, status });
+    setOrder(localTrackView({ ...local, status }));
   }
 
-  const producer = order ? findProducer(order.producerSlug) : undefined;
+  const producer = order ? { name: order.producerName, slug: order.producerSlug, pixKey: order.pixKey } : undefined;
 
   return (
     <div className="min-h-screen bg-sand">
       <div className="mx-auto flex min-h-screen max-w-[480px] flex-col gap-5 bg-cream px-4 pb-12 pt-6 shadow-card">
         <Logo size={36} />
+        {stale && order ? (
+          <p role="status" className="rounded-3xl bg-sand px-4 py-3 text-base text-ink">{stale}</p>
+        ) : null}
 
         {order === undefined ? (
           <div className="flex flex-col gap-4" aria-busy="true">
@@ -92,7 +139,7 @@ function Tracking() {
           <EmptyState
             icon={PackageSearch}
             title="Não achei esse pedido aqui."
-            description="Abra o link no mesmo celular em que você fez o pedido."
+            description={apiEnabled ? "Confira o link que você recebeu ao fazer o pedido." : "Abra o link no mesmo celular em que você fez o pedido."}
             action={
               <Button asChild>
                 <Link to="/p/$slug" params={{ slug: "marcos-biritiba" }}>Fazer um pedido</Link>
@@ -122,10 +169,15 @@ function Tracking() {
 
               {order.status === "rejected" ? (
                 <div className="mt-5 flex flex-col gap-3 rounded-3xl bg-sand p-4" role="alert">
+                  {producer.slug && order.cart ? (<>
                   <p className="inline-flex items-start gap-2 text-base text-ink">
                     <XCircle className="mt-0.5 size-5 shrink-0 text-rust" aria-hidden="true" />
                     O {producer.name} não conseguiu atender. Veja outros horários.
-                  </p>
+                  </p></>) : (
+                  <p className="inline-flex items-start gap-2 text-base text-ink">
+                    <XCircle className="mt-0.5 size-5 shrink-0 text-rust" aria-hidden="true" />
+                    O {producer.name} não conseguiu atender desta vez. Fale com ele para combinar outro dia.
+                  </p>)}
                   <Button asChild variant="outline">
                     <Link
                       to="/p/$slug/pedido"
@@ -141,7 +193,8 @@ function Tracking() {
                     </Link>
                   </Button>
                 </div>
-              ) : (
+              ) : null}
+              {order.status === "rejected" && !(producer.slug && order.cart) ? null : order.status === "rejected" ? null : (
                 <TimelineStatus className="mt-6" steps={steps(order.status, producer.name)} />
               )}
             </section>
