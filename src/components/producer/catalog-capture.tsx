@@ -6,6 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/chip";
 import { PHOTO_PROPOSAL, UNITS, VOICE_PROPOSAL, parseMoney, type Proposal } from "@/lib/producer";
 import { cn } from "@/lib/utils";
+import { apiEnabled, glyphFor, producerApi, showApiError, unitFromApi, type ApiCatalogProposal } from "@/lib/api";
+import { useRecorder } from "@/lib/use-recorder";
+
+function fromApi(p: ApiCatalogProposal): Proposal[] {
+  return p.products.map((x) => ({ name: x.name, unit: unitFromApi(x.unit), price: x.price_missing ? null : x.price, intermediaryPrice: null, glyph: glyphFor(x.name) }));
+}
 
 type Mode = "choose" | "recording" | "thinking" | "review";
 
@@ -94,12 +100,56 @@ export function ProposalEditor({ items, onChange }: { items: Proposal[]; onChang
   );
 }
 
-/** Three ways to add products: voice / photo / one by one. All simulated. */
+/** Three ways to add products: voice / photo / one by one. Uses the API's AI when configured. */
 export function CatalogCapture({ onConfirm, confirmLabel = "Confirmar produtos" }: { onConfirm: (items: Proposal[]) => void; confirmLabel?: string }) {
   const [mode, setMode] = React.useState<Mode>("choose");
   const [items, setItems] = React.useState<Proposal[]>([]);
   const [secs, setSecs] = React.useState(0);
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const recorder = useRecorder();
+
+  async function startVoice() {
+    if (apiEnabled) {
+      try {
+        await recorder.start();
+      } catch {
+        showApiError(new Error("mic"));
+        return;
+      }
+    }
+    setMode("recording");
+  }
+
+  async function stopVoice() {
+    if (!apiEnabled) return think(VOICE_PROPOSAL);
+    setMode("thinking");
+    const rec = await recorder.stop();
+    if (!rec || rec.seconds < 1) {
+      setMode(items.length ? "review" : "choose");
+      return;
+    }
+    try {
+      const r = await producerApi.catalogFromVoice(rec.blob, Math.round(rec.seconds));
+      setItems((cur) => [...cur, ...fromApi(r)]);
+      setMode("review");
+    } catch (e) {
+      showApiError(e, { ai: true });
+      setMode(items.length ? "review" : "choose");
+    }
+  }
+
+  async function fromPhoto(file: File) {
+    if (!apiEnabled) return think(PHOTO_PROPOSAL);
+    setMode("thinking");
+    try {
+      const r = await producerApi.catalogFromPhoto(file);
+      setItems((cur) => [...cur, ...fromApi(r)]);
+      setMode("review");
+    } catch (e) {
+      showApiError(e, { ai: true });
+      setMode(items.length ? "review" : "choose");
+    }
+  }
 
   React.useEffect(() => {
     if (mode !== "recording") return;
@@ -124,7 +174,7 @@ export function CatalogCapture({ onConfirm, confirmLabel = "Confirmar produtos" 
         <div className="relative flex size-40 items-center justify-center">
           <span className="absolute inset-4 rounded-full bg-amber animate-wave" />
           <span className="absolute inset-4 rounded-full bg-amber animate-wave [animation-delay:0.8s]" />
-          <button type="button" aria-label="Parar gravação" onClick={() => think(VOICE_PROPOSAL)} className="relative inline-flex size-28 cursor-pointer items-center justify-center rounded-full bg-amber text-forest shadow-lift">
+          <button type="button" aria-label="Parar gravação" onClick={() => void stopVoice()} className="relative inline-flex size-28 cursor-pointer items-center justify-center rounded-full bg-amber text-forest shadow-lift">
             <Square className="size-10" fill="currentColor" />
           </button>
         </div>
@@ -161,7 +211,7 @@ export function CatalogCapture({ onConfirm, confirmLabel = "Confirmar produtos" 
   }
 
   const cards = [
-    { icon: Mic, title: "Cadastrar falando", text: "Diga os produtos e os preços.", tone: "bg-amber text-forest", on: () => setMode("recording") },
+    { icon: Mic, title: "Cadastrar falando", text: "Diga os produtos e os preços.", tone: "bg-amber text-forest", on: () => void startVoice() },
     { icon: Camera, title: "Cadastrar por foto", text: "Foto da lousa ou da lista de preços.", tone: "bg-leaf-dark text-cream", on: () => fileRef.current?.click() },
     {
       icon: Plus,
@@ -177,7 +227,7 @@ export function CatalogCapture({ onConfirm, confirmLabel = "Confirmar produtos" 
 
   return (
     <div className="flex flex-col gap-3">
-      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.length && think(PHOTO_PROPOSAL)} />
+      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void fromPhoto(f); e.target.value = ""; }} />
       {cards.map((c) => (
         <button key={c.title} type="button" onClick={c.on} className="flex min-h-24 cursor-pointer items-center gap-4 rounded-3xl border-2 border-line bg-paper p-5 text-left transition-transform hover:border-forest active:scale-[0.99]">
           <span className={cn("inline-flex size-16 shrink-0 items-center justify-center rounded-full", c.tone)}>
