@@ -415,6 +415,8 @@ function DesignPage() {
           </div>
         </div>
       </BottomSheet>
+        </Suspense>
+      ) : null}
     </div>
   );
 }
