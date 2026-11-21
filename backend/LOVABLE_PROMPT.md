@@ -1,5 +1,7 @@
 # Como criar o schema do banco pelo Lovable
 
+> A versão **em ordem** (com o SQL já embutido, pronta para copiar) está em `docs/lovable-visual.md`, nos prompts 2 e 3. Este arquivo continua valendo como referência.
+
 O `AGENTS.md` deste repositório pede que o schema seja alterado pelo Lovable, não por `supabase/migrations/`. Então:
 
 1. Abra o projeto no Lovable (o link está no README da raiz).

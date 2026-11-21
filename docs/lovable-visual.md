@@ -1,12 +1,24 @@
 # Roteiro para o Lovable: visual do Colheita Certa
 
-Cinco prompts para colar no chat do Lovable, **na ordem**. Cada um termina com um critério de pronto: espere o Lovable acabar e confira a prévia antes de colar o próximo. Os prompts 1 a 4 usam dados de exemplo (nada de API); o 5 liga tudo ao backend depois que ele estiver publicado.
+Sete prompts para colar no chat do Lovable, **na ordem**. Cada um termina com um critério de pronto: espere o Lovable acabar e confira a prévia antes de colar o próximo.
+
+| # | O que faz | Usa API? |
+|---|---|---|
+| 1 | Base visual (design system) | Não |
+| 2 | Banco: tabelas | Não (cria o schema) |
+| 3 | Banco: segurança por linha (RLS) | Não (cria as políticas) |
+| 4 | Telas do comprador | Não, dados de exemplo |
+| 5 | Telas do produtor | Não, dados de exemplo |
+| 6 | PWA e acabamento | Não |
+| 7 | Ligar à API | Sim, só com o backend rodando num endereço público |
+
+O prompt 1 não depende do banco, então pode ser enviado primeiro. Os prompts 2 e 3 vêm logo depois para o Lovable já gerar os tipos das tabelas antes das telas.
 
 ## Antes de começar
 
-1. Aplique o schema do banco pelo chat do Lovable, seguindo `backend/LOVABLE_PROMPT.md`. Os prompts abaixo não criam tabelas.
-2. Se o chat permitir anexar imagens, anexe a capa e o slide "Proposta de valor" do deck como referência de clima visual.
-3. Não mude o framework nem as bibliotecas do projeto (TanStack Start, Tailwind 4, shadcn/ui). Os prompts já dizem isso ao Lovable.
+1. Se o chat permitir anexar imagens, anexe a capa e o slide "Proposta de valor" do deck como referência de clima visual.
+2. Não mude o framework nem as bibliotecas do projeto (TanStack Start, Tailwind 4, shadcn/ui). Os prompts já dizem isso ao Lovable.
+3. O schema do banco só pode ser criado pelo chat do Lovable (regra do `AGENTS.md` do repositório): por isso ele é o prompt 2 e o 3, e não um arquivo em `supabase/migrations/`.
 
 ## Identidade visual (já está dentro do Prompt 1)
 
@@ -73,7 +85,185 @@ PRONTO QUANDO: a rota /design mostra o logo, a paleta, a tipografia e todos os c
 
 ---
 
-## Prompt 2: comprador (sem login)
+## Prompt 2: banco, tabelas
+
+Cola exatamente o SQL de `backend/sql/001_schema.sql` (este bloco é gerado a partir do arquivo, então os dois são idênticos).
+
+```
+Preciso de uma migração no banco do projeto. Execute exatamente o SQL abaixo, sem renomear tabelas nem colunas, porque um backend em Python vai ler e gravar essas tabelas. Depois me diga quais tabelas foram criadas.
+
+-- Colheita Certa · Fase 1 · schema do banco (Postgres / Supabase)
+-- Aplicar pelo chat do Lovable (ver LOVABLE_PROMPT.md): o AGENTS.md do repositório
+-- pede que mudanças de schema passem por ele, não por supabase/migrations/.
+-- Os nomes de colunas devem bater com backend/app/models.py.
+
+create table public.producers (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references auth.users (id) on delete cascade,
+  slug text not null unique check (slug ~ '^[a-z0-9][a-z0-9-]{2,40}$'),
+  name text not null,
+  phone text,
+  municipality text,
+  pix_key text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create table public.products (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid not null references public.producers (id) on delete cascade,
+  name text not null,
+  unit text not null check (unit in ('maco', 'duzia', 'engradado', 'kg', 'unidade', 'caixa')),
+  price numeric(10, 2) not null check (price >= 0),
+  intermediary_price numeric(10, 2) check (intermediary_price >= 0),
+  active boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (producer_id, name, unit)
+);
+
+create table public.buyers (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid not null references public.producers (id) on delete cascade,
+  name text not null,
+  phone text not null,
+  device_id text,
+  created_at timestamptz not null default now(),
+  unique (producer_id, phone)
+);
+
+create table public.orders (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid not null references public.producers (id) on delete cascade,
+  buyer_id uuid not null references public.buyers (id) on delete restrict,
+  status text not null default 'pendente'
+    check (status in ('pendente', 'aceito', 'recusado', 'entregue', 'cancelado')),
+  payment_status text not null default 'a_receber'
+    check (payment_status in ('a_receber', 'pago')),
+  delivery_date date not null,
+  delivery_time time not null,
+  notes text,
+  source text not null default 'toque' check (source in ('toque', 'voz')),
+  tracking_token text not null unique,
+  device_id text,
+  total numeric(12, 2) not null default 0,
+  created_at timestamptz not null default now(),
+  accepted_at timestamptz,
+  delivered_at timestamptz,
+  paid_at timestamptz
+);
+create index orders_producer_date_idx on public.orders (producer_id, delivery_date, status);
+create index orders_device_idx on public.orders (device_id, created_at);
+
+create table public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders (id) on delete cascade,
+  product_id uuid references public.products (id) on delete set null,
+  product_name text not null,
+  unit text not null,
+  quantity numeric(10, 2) not null check (quantity > 0),
+  unit_price numeric(10, 2) not null check (unit_price >= 0),
+  intermediary_price numeric(10, 2) check (intermediary_price >= 0)
+);
+create index order_items_order_idx on public.order_items (order_id);
+
+create table public.usage_events (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid references public.producers (id) on delete set null,
+  device_id text,
+  kind text not null check (kind in ('llm', 'transcription')),
+  model text,
+  tokens_in integer,
+  tokens_out integer,
+  audio_seconds numeric(10, 2),
+  cost_brl numeric(10, 4) not null default 0,
+  created_at timestamptz not null default now()
+);
+create index usage_events_producer_idx on public.usage_events (producer_id, created_at);
+create index usage_events_device_idx on public.usage_events (device_id, created_at);
+
+create table public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid not null references public.producers (id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+PRONTO QUANDO: o Lovable lista as 7 tabelas (producers, products, buyers, orders, order_items, usage_events, push_subscriptions) sem erro.
+```
+
+---
+
+## Prompt 3: banco, segurança por linha (RLS)
+
+Cola exatamente o SQL de `backend/sql/002_rls.sql`.
+
+```
+Agora aplique estas políticas de segurança por linha. Não crie nenhuma política para o papel anon: visitantes não devem ler nada direto do banco. O frontend só lê os dados do próprio produtor logado; toda escrita passa pelo backend. Depois regenere os tipos do Supabase (src/integrations/supabase/types.ts) para o frontend enxergar as tabelas.
+
+-- Colheita Certa · Fase 1 · segurança por linha (RLS)
+-- O frontend (Lovable, supabase-js) só LÊ os dados do próprio produtor.
+-- Toda escrita e todo fluxo público passam pela API FastAPI, que conecta com
+-- o papel do banco (que ignora RLS) e valida as regras no código.
+-- Não há nenhuma política para o papel anon: visitante não lê nada direto.
+
+create or replace function public.owned_producer_ids()
+returns setof uuid
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select id from public.producers where user_id = auth.uid()
+$$;
+
+alter table public.producers enable row level security;
+alter table public.products enable row level security;
+alter table public.buyers enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+alter table public.usage_events enable row level security;
+alter table public.push_subscriptions enable row level security;
+
+create policy producers_select_own on public.producers
+  for select to authenticated using (user_id = auth.uid());
+
+create policy products_select_own on public.products
+  for select to authenticated using (producer_id in (select public.owned_producer_ids()));
+
+create policy buyers_select_own on public.buyers
+  for select to authenticated using (producer_id in (select public.owned_producer_ids()));
+
+create policy orders_select_own on public.orders
+  for select to authenticated using (producer_id in (select public.owned_producer_ids()));
+
+create policy order_items_select_own on public.order_items
+  for select to authenticated using (
+    order_id in (
+      select id from public.orders
+      where producer_id in (select public.owned_producer_ids())
+    )
+  );
+
+create policy usage_events_select_own on public.usage_events
+  for select to authenticated using (producer_id in (select public.owned_producer_ids()));
+
+-- Realtime: o painel do produtor escuta novos pedidos.
+alter publication supabase_realtime add table public.orders;
+
+PRONTO QUANDO: o RLS aparece ligado nas 7 tabelas, sem política para anon, e o arquivo de tipos mostra as tabelas.
+```
+
+**Entre o prompt 3 e o 4 (você faz, não o Lovable):**
+
+1. Confira no painel do Supabase que as 7 tabelas existem e que o RLS está ligado em todas.
+2. Se quiser dados de demonstração, crie um usuário de teste (login do app ou painel do Supabase), troque o e-mail em `backend/sql/003_seed_demo.sql` e rode no editor SQL do Supabase. Os dados são simulados.
+3. A chave de serviço e a senha do banco ficam só no ambiente do backend e no `.env` local dele, que está no `.gitignore`. Nunca no repositório nem no chat do Lovable.
+
+---
+
+## Prompt 4: comprador (sem login)
 
 ```
 Agora as telas do COMPRADOR, usando só os dados de exemplo. Sem login. O comprador chega por um link do produtor: /p/marcos-biritiba. Pense em um restaurante pedindo pelo celular em 30 segundos, com uma mão só.
@@ -109,7 +299,7 @@ PRONTO QUANDO: dá para fazer o fluxo inteiro (vitrine, voz simulada, pedido, ac
 
 ---
 
-## Prompt 3: produtor (com login)
+## Prompt 5: produtor (com login)
 
 ```
 Agora as telas do PRODUTOR. Quem usa é um horticultor, muitas vezes no campo, no celular, com pouca paciência e sol na tela. Textos curtos, botões enormes, números grandes. Ainda com dados de exemplo (o login real vem depois).
@@ -150,7 +340,7 @@ PRONTO QUANDO: com dados de exemplo, dá para aceitar um pedido, ver a colheita 
 
 ---
 
-## Prompt 4: PWA e acabamento
+## Prompt 6: PWA e acabamento
 
 ```
 Agora o acabamento e o app instalável.
@@ -171,9 +361,9 @@ PRONTO QUANDO: o app instala no celular, abre sem erro offline e passa na revis�
 
 ---
 
-## Prompt 5: ligar à API (só depois que o backend estiver publicado)
+## Prompt 7: ligar à API (só com o backend rodando num endereço público)
 
-Troque `SEU_ENDEREÇO_DA_API` pelo endereço publicado (Vercel). O contrato completo está em `{API}/openapi.json`.
+Troque `SEU_ENDEREÇO_DA_API` pelo endereço público em que o backend estiver rodando (o Lovable não alcança `localhost`). O contrato completo está em `{API}/openapi.json`.
 
 ```
 Agora troque os dados de exemplo pela API real. A API está em SEU_ENDEREÇO_DA_API (guarde em VITE_API_URL; o contrato OpenAPI está em /openapi.json). NÃO crie nem altere tabelas: o schema já existe. Não coloque chaves secretas no código.
